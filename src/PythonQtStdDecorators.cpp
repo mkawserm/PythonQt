@@ -46,61 +46,53 @@
 
 #include <QCoreApplication>
 
-bool PythonQtStdDecorators::connect(QObject* sender, const QByteArray& signal, PyObject* callable)
+bool PythonQtStdDecorators::connect(QObject* sender, const QString& signal, PyObject* callable)
 {
   bool result = false;
-  QByteArray signalTmp;
-  char first = signal.at(0);
-  if (first>='0' && first<='9') {
-    signalTmp = signal;
-  } else {
-    signalTmp = "2" + signal;
+  QByteArray signalTmp = signal.toLatin1();
+  char first = signalTmp.at(0);
+  if (first<'0' || first>'9') {
+    signalTmp = "2" + signalTmp;
   }
 
   if (sender) {
     result = PythonQt::self()->addSignalHandler(sender, signalTmp, callable);
     if (!result) {
       if (sender->metaObject()->indexOfSignal(QMetaObject::normalizedSignature(signalTmp.constData()+1)) == -1) {
-        qWarning("PythonQt: QObject::connect() signal '%s' does not exist on %s", signal.constData(), sender->metaObject()->className());
+        qWarning("PythonQt: QObject::connect() signal '%s' does not exist on %s", signal.toLatin1().constData(), sender->metaObject()->className());
       }
     }
   }
   return result;
 }
 
-bool PythonQtStdDecorators::connect(QObject* sender, const QByteArray& signal, QObject* receiver, const QByteArray& slot, Qt::ConnectionType type)
+bool PythonQtStdDecorators::connect(QObject* sender, const QString& signal, QObject* receiver, const QString& slot, Qt::ConnectionType type)
 {
   bool r = false;
   if (sender && receiver) {
-    QByteArray signalTmp;
-    char first = signal.at(0);
-    if (first>='0' && first<='9') {
-      signalTmp = signal;
-    } else {
-      signalTmp = "2" + signal;
+    QByteArray signalTmp = signal.toLatin1();
+    char first = signalTmp.at(0);
+    if (first<'0' || first>'9') {
+      signalTmp = "2" + signalTmp;
     }
 
-    QByteArray slotTmp;
-    first = slot.at(0);
-    if (first>='0' && first<='9') {
-      slotTmp = slot;
-    } else {
-      slotTmp = "1" + slot;
+    QByteArray slotTmp = slot.toLatin1();
+    first = slotTmp.at(0);
+    if (first<'0' || first>'9') {
+      slotTmp = "1" + slotTmp;
     }
     r = QObject::connect(sender, signalTmp, receiver, slotTmp, type);
   }
   return r;
 }
 
-bool PythonQtStdDecorators::disconnect(QObject* sender, const QByteArray& signal, PyObject* callable)
+bool PythonQtStdDecorators::disconnect(QObject* sender, const QString& signal, PyObject* callable)
 {
   bool result = false;
-  QByteArray signalTmp;
-  char first = signal.at(0);
-  if (first>='0' && first<='9') {
-    signalTmp = signal;
-  } else {
-    signalTmp = "2" + signal;
+  QByteArray signalTmp = signal.toLatin1();
+  char first = signalTmp.at(0);
+  if (first<'0' || first>'9') {
+    signalTmp = "2" + signalTmp;
   }
   if (sender) {
     result = PythonQt::self()->removeSignalHandler(sender, signalTmp, callable);
@@ -109,31 +101,27 @@ bool PythonQtStdDecorators::disconnect(QObject* sender, const QByteArray& signal
     }
     if (!result) {
       if (sender->metaObject()->indexOfSignal(QMetaObject::normalizedSignature(signalTmp.constData()+1)) == -1) {
-        qWarning("PythonQt: QObject::disconnect() signal '%s' does not exist on %s", signal.constData(), sender->metaObject()->className());
+        qWarning("PythonQt: QObject::disconnect() signal '%s' does not exist on %s", signal.toLatin1().constData(), sender->metaObject()->className());
       }
     }
   }
   return result;
 }
 
-bool PythonQtStdDecorators::disconnect(QObject* sender, const QByteArray& signal, QObject* receiver, const QByteArray& slot)
+bool PythonQtStdDecorators::disconnect(QObject* sender, const QString& signal, QObject* receiver, const QString& slot)
 {
   bool r = false;
   if (sender && receiver) {
-    QByteArray signalTmp;
-    char first = signal.at(0);
-    if (first>='0' && first<='9') {
-      signalTmp = signal;
-    } else {
-      signalTmp = "2" + signal;
+    QByteArray signalTmp = signal.toLatin1();
+    char first = signalTmp.at(0);
+    if (first<'0' || first>'9') {
+      signalTmp = "2" + signalTmp;
     }
 
-    QByteArray slotTmp;
-    first = slot.at(0);
-    if (first>='0' && first<='9') {
-      slotTmp = slot;
-    } else {
-      slotTmp = "1" + slot;
+    QByteArray slotTmp = slot.toLatin1();
+    first = slotTmp.at(0);
+    if (first<'0' || first>'9') {
+      slotTmp = "1" + slotTmp;
     }
 
     r = QObject::disconnect(sender, signalTmp, receiver, slotTmp);
@@ -145,7 +133,7 @@ QObject* PythonQtStdDecorators::parent(QObject* o) {
   return o->parent();
 }
 
-void PythonQtStdDecorators::setParent(QObject* o, QObject* parent)
+void PythonQtStdDecorators::setParent(QObject* o, PythonQtNewOwnerOfThis<QObject*> parent)
 {
   o->setParent(parent);
 }
@@ -165,13 +153,20 @@ QVariant PythonQtStdDecorators::property(QObject* o, const char* name)
   return o->property(name);
 }
 
-QString PythonQtStdDecorators::tr(QObject* obj, const QByteArray& text, const QByteArray& ambig, int n)
+QString PythonQtStdDecorators::tr(QObject* obj, const QString& text, const QString& ambig, int n)
 {
 #if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
-  return QCoreApplication::translate(obj->metaObject()->className(), text.constData(), ambig.constData(), n);
+  return QCoreApplication::translate(obj->metaObject()->className(), text.toUtf8().constData(), ambig.toUtf8().constData(), n);
 #else
-  return QCoreApplication::translate(obj->metaObject()->className(), text.constData(), ambig.constData(), QCoreApplication::CodecForTr, n);
+  return QCoreApplication::translate(obj->metaObject()->className(), text.toUtf8().constData(), ambig.toUtf8().constData(), QCoreApplication::CodecForTr, n);
 #endif
+}
+
+void PythonQtStdDecorators::static_QTimer_singleShot(int msec, PyObject* callable)
+{
+  PythonQtSingleShotTimer* timer = new PythonQtSingleShotTimer(msec, callable);
+  timer->start();
+  // timer deletes itself after calling callable
 }
 
 QObject* PythonQtStdDecorators::findChild(QObject* parent, PyObject* type, const QString& name)
@@ -332,4 +327,80 @@ int PythonQtStdDecorators::findChildren(QObject* parent, const char* typeName, c
 const QMetaObject* PythonQtStdDecorators::metaObject( QObject* obj )
 {
   return obj->metaObject();
+}
+
+bool PythonQtDebugAPI::isOwnedByPython( PyObject* object )
+{
+  if (PyObject_TypeCheck(object, &PythonQtInstanceWrapper_Type)) {
+    PythonQtInstanceWrapper* wrapper = (PythonQtInstanceWrapper*)object;
+    return wrapper->_ownedByPythonQt;
+  }
+  return true;
+}
+
+bool PythonQtDebugAPI::isDerivedShellInstance( PyObject* object )
+{
+  if (PyObject_TypeCheck(object, &PythonQtInstanceWrapper_Type)) {
+    PythonQtInstanceWrapper* wrapper = (PythonQtInstanceWrapper*)object;
+    return wrapper->_isShellInstance;
+  }
+  return false;
+}
+
+bool PythonQtDebugAPI::hasExtraShellRefCount( PyObject* object )
+{
+  if (PyObject_TypeCheck(object, &PythonQtInstanceWrapper_Type)) {
+    PythonQtInstanceWrapper* wrapper = (PythonQtInstanceWrapper*)object;
+    return wrapper->_shellInstanceRefCountsWrapper;
+  }
+  return false;
+}
+
+bool PythonQtDebugAPI::passOwnershipToCPP( PyObject* object )
+{
+  if (PyObject_TypeCheck(object, &PythonQtInstanceWrapper_Type)) {
+    PythonQtInstanceWrapper* wrapper = (PythonQtInstanceWrapper*)object;
+    wrapper->passOwnershipToCPP();
+    return true;
+  }
+  return false;
+}
+
+bool PythonQtDebugAPI::passOwnershipToPython( PyObject* object )
+{
+  if (PyObject_TypeCheck(object, &PythonQtInstanceWrapper_Type)) {
+    PythonQtInstanceWrapper* wrapper = (PythonQtInstanceWrapper*)object;
+    wrapper->passOwnershipToPython();
+    return true;
+  }
+  return false;
+}
+
+bool PythonQtDebugAPI::isPythonQtInstanceWrapper( PyObject* object )
+{
+  return PyObject_TypeCheck(object, &PythonQtInstanceWrapper_Type) != 0;
+}
+
+bool PythonQtDebugAPI::isPythonQtClassWrapper( PyObject* object )
+{
+  return PyObject_TypeCheck(object, &PythonQtClassWrapper_Type) != 0;
+}
+
+//---------------------------------------------------------------------------
+
+PythonQtSingleShotTimer::PythonQtSingleShotTimer(int msec, const PythonQtObjectPtr& callable)
+{
+  _callable = callable;
+  setSingleShot(true);
+  setInterval(msec);
+  connect(this, SIGNAL(timeout()), this, SLOT(slotTimeout()));
+}
+
+void PythonQtSingleShotTimer::slotTimeout()
+{
+  if (_callable) {
+    _callable.call();
+  }
+  // delete ourself
+  deleteLater();
 }

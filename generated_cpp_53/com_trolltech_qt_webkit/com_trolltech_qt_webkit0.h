@@ -1,4 +1,5 @@
 #include <PythonQt.h>
+#include <QGraphicsScene>
 #include <QObject>
 #include <QVariant>
 #include <qaction.h>
@@ -123,7 +124,6 @@ virtual Qt::WindowFrameSection  windowFrameSectionAt(const QPointF&  pos) const;
 
 class PythonQtPublicPromoter_QGraphicsWebView : public QGraphicsWebView
 { public:
-friend class PythonQtWrapper_QGraphicsWebView;
 inline void promoted_contextMenuEvent(QGraphicsSceneContextMenuEvent*  arg__1) { QGraphicsWebView::contextMenuEvent(arg__1); }
 inline void promoted_dragEnterEvent(QGraphicsSceneDragDropEvent*  arg__1) { QGraphicsWebView::dragEnterEvent(arg__1); }
 inline void promoted_dragLeaveEvent(QGraphicsSceneDragDropEvent*  arg__1) { QGraphicsWebView::dragLeaveEvent(arg__1); }
@@ -450,13 +450,21 @@ virtual void timerEvent(QTimerEvent*  arg__1);
   PythonQtInstanceWrapper* _wrapper; 
 };
 
+class PythonQtPublicPromoter_QWebHistoryInterface : public QWebHistoryInterface
+{ public:
+inline void promoted_addHistoryEntry(const QString&  url) { this->addHistoryEntry(url); }
+inline bool  promoted_historyContains(const QString&  url) const { return this->historyContains(url); }
+};
+
 class PythonQtWrapper_QWebHistoryInterface : public QObject
 { Q_OBJECT
 public:
 public slots:
 QWebHistoryInterface* new_QWebHistoryInterface(QObject*  parent = 0);
 void delete_QWebHistoryInterface(QWebHistoryInterface* obj) { delete obj; } 
+   void addHistoryEntry(QWebHistoryInterface* theWrappedObject, const QString&  url);
    QWebHistoryInterface*  static_QWebHistoryInterface_defaultInterface();
+   bool  historyContains(QWebHistoryInterface* theWrappedObject, const QString&  url) const;
    void static_QWebHistoryInterface_setDefaultInterface(QWebHistoryInterface*  defaultInterface);
 };
 
@@ -572,7 +580,6 @@ virtual void wheelEvent(QWheelEvent*  arg__1);
 
 class PythonQtPublicPromoter_QWebInspector : public QWebInspector
 { public:
-friend class PythonQtWrapper_QWebInspector;
 inline void promoted_closeEvent(QCloseEvent*  event) { QWebInspector::closeEvent(event); }
 inline bool  promoted_event(QEvent*  arg__1) { return QWebInspector::event(arg__1); }
 inline void promoted_hideEvent(QHideEvent*  event) { QWebInspector::hideEvent(event); }
@@ -631,7 +638,6 @@ virtual QString  userAgentForUrl(const QUrl&  url) const;
 
 class PythonQtPublicPromoter_QWebPage : public QWebPage
 { public:
-friend class PythonQtWrapper_QWebPage;
 inline bool  promoted_acceptNavigationRequest(QWebFrame*  frame, const QNetworkRequest&  request, QWebPage::NavigationType  type) { return QWebPage::acceptNavigationRequest(frame, request, type); }
 inline QString  promoted_chooseFile(QWebFrame*  originatingFrame, const QString&  oldFile) { return QWebPage::chooseFile(originatingFrame, oldFile); }
 inline QObject*  promoted_createPlugin(const QString&  classid, const QUrl&  url, const QStringList&  paramNames, const QStringList&  paramValues) { return QWebPage::createPlugin(classid, url, paramNames, paramValues); }
@@ -917,8 +923,9 @@ virtual void timerEvent(QTimerEvent*  arg__1);
 
 class PythonQtPublicPromoter_QWebPluginFactory : public QWebPluginFactory
 { public:
-friend class PythonQtWrapper_QWebPluginFactory;
+inline QObject*  promoted_create(const QString&  mimeType, const QUrl&  arg__2, const QStringList&  argumentNames, const QStringList&  argumentValues) const { return this->create(mimeType, arg__2, argumentNames, argumentValues); }
 inline bool  promoted_extension(QWebPluginFactory::Extension  extension, const QWebPluginFactory::ExtensionOption*  option = 0, QWebPluginFactory::ExtensionReturn*  output = 0) { return QWebPluginFactory::extension(extension, option, output); }
+inline QList<QWebPluginFactory::Plugin >  promoted_plugins() const { return this->plugins(); }
 inline void promoted_refreshPlugins() { QWebPluginFactory::refreshPlugins(); }
 inline bool  promoted_supportsExtension(QWebPluginFactory::Extension  extension) const { return QWebPluginFactory::supportsExtension(extension); }
 };
@@ -932,7 +939,9 @@ enum Extension{
 public slots:
 QWebPluginFactory* new_QWebPluginFactory(QObject*  parent = 0);
 void delete_QWebPluginFactory(QWebPluginFactory* obj) { delete obj; } 
+   QObject*  create(QWebPluginFactory* theWrappedObject, const QString&  mimeType, const QUrl&  arg__2, const QStringList&  argumentNames, const QStringList&  argumentValues) const;
    bool  extension(QWebPluginFactory* theWrappedObject, QWebPluginFactory::Extension  extension, const QWebPluginFactory::ExtensionOption*  option = 0, QWebPluginFactory::ExtensionReturn*  output = 0);
+   QList<QWebPluginFactory::Plugin >  plugins(QWebPluginFactory* theWrappedObject) const;
    void refreshPlugins(QWebPluginFactory* theWrappedObject);
    bool  supportsExtension(QWebPluginFactory* theWrappedObject, QWebPluginFactory::Extension  extension) const;
 };
@@ -1201,7 +1210,6 @@ virtual void wheelEvent(QWheelEvent*  arg__1);
 
 class PythonQtPublicPromoter_QWebView : public QWebView
 { public:
-friend class PythonQtWrapper_QWebView;
 inline void promoted_changeEvent(QEvent*  arg__1) { QWebView::changeEvent(arg__1); }
 inline void promoted_contextMenuEvent(QContextMenuEvent*  arg__1) { QWebView::contextMenuEvent(arg__1); }
 inline QWebView*  promoted_createWindow(QWebPage::WebWindowType  type) { return QWebView::createWindow(type); }

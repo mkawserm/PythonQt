@@ -53,8 +53,11 @@ virtual QByteArray  name() const;
 
 class PythonQtPublicPromoter_QTextCodec : public QTextCodec
 { public:
-friend class PythonQtWrapper_QTextCodec;
 inline QList<QByteArray >  promoted_aliases() const { return QTextCodec::aliases(); }
+inline QByteArray  promoted_convertFromUnicode(const QChar*  in, int  length, QTextCodec::ConverterState*  state) const { return this->convertFromUnicode(in, length, state); }
+inline QString  promoted_convertToUnicode(const char*  in, int  length, QTextCodec::ConverterState*  state) const { return this->convertToUnicode(in, length, state); }
+inline int  promoted_mibEnum() const { return this->mibEnum(); }
+inline QByteArray  promoted_name() const { return this->name(); }
 };
 
 class PythonQtWrapper_QTextCodec : public QObject
@@ -66,6 +69,7 @@ enum ConversionFlag{
   DefaultConversion = QTextCodec::DefaultConversion,   ConvertInvalidToNull = QTextCodec::ConvertInvalidToNull,   IgnoreHeader = QTextCodec::IgnoreHeader,   FreeFunction = QTextCodec::FreeFunction};
 Q_DECLARE_FLAGS(ConversionFlags, ConversionFlag)
 public slots:
+QTextCodec* new_QTextCodec();
    QList<QByteArray >  aliases(QTextCodec* theWrappedObject) const;
    QList<QByteArray >  static_QTextCodec_availableCodecs();
    QList<int >  static_QTextCodec_availableMibs();
@@ -79,9 +83,13 @@ public slots:
    QTextCodec*  static_QTextCodec_codecForName(const char*  name);
    QTextCodec*  static_QTextCodec_codecForUtfText(const QByteArray&  ba);
    QTextCodec*  static_QTextCodec_codecForUtfText(const QByteArray&  ba, QTextCodec*  defaultCodec);
+   QByteArray  convertFromUnicode(QTextCodec* theWrappedObject, const QChar*  in, int  length, QTextCodec::ConverterState*  state) const;
+   QString  convertToUnicode(QTextCodec* theWrappedObject, const char*  in, int  length, QTextCodec::ConverterState*  state) const;
    QByteArray  fromUnicode(QTextCodec* theWrappedObject, const QString&  uc) const;
    QTextDecoder*  makeDecoder(QTextCodec* theWrappedObject, QTextCodec::ConversionFlags  flags = QTextCodec::DefaultConversion) const;
    QTextEncoder*  makeEncoder(QTextCodec* theWrappedObject, QTextCodec::ConversionFlags  flags = QTextCodec::DefaultConversion) const;
+   int  mibEnum(QTextCodec* theWrappedObject) const;
+   QByteArray  name(QTextCodec* theWrappedObject) const;
    void static_QTextCodec_setCodecForLocale(QTextCodec*  c);
    QString  toUnicode(QTextCodec* theWrappedObject, const QByteArray&  arg__1) const;
 };
@@ -267,7 +275,6 @@ virtual qreal  valueForTime(int  msec) const;
 
 class PythonQtPublicPromoter_QTimeLine : public QTimeLine
 { public:
-friend class PythonQtWrapper_QTimeLine;
 inline void promoted_timerEvent(QTimerEvent*  event) { QTimeLine::timerEvent(event); }
 inline qreal  promoted_valueForTime(int  msec) const { return QTimeLine::valueForTime(msec); }
 };
@@ -384,7 +391,6 @@ virtual void timerEvent(QTimerEvent*  arg__1);
 
 class PythonQtPublicPromoter_QTimer : public QTimer
 { public:
-friend class PythonQtWrapper_QTimer;
 inline void promoted_timerEvent(QTimerEvent*  arg__1) { QTimer::timerEvent(arg__1); }
 };
 
@@ -456,7 +462,6 @@ virtual QString  translate(const char*  context, const char*  sourceText, const 
 
 class PythonQtPublicPromoter_QTranslator : public QTranslator
 { public:
-friend class PythonQtWrapper_QTranslator;
 inline bool  promoted_isEmpty() const { return QTranslator::isEmpty(); }
 };
 
@@ -602,7 +607,6 @@ virtual void updateState(QAbstractAnimation::State  newState, QAbstractAnimation
 
 class PythonQtPublicPromoter_QVariantAnimation : public QVariantAnimation
 { public:
-friend class PythonQtWrapper_QVariantAnimation;
 inline int  promoted_duration() const { return QVariantAnimation::duration(); }
 inline bool  promoted_event(QEvent*  event) { return QVariantAnimation::event(event); }
 inline QVariant  promoted_interpolated(const QVariant&  from, const QVariant&  to, qreal  progress) const { return QVariantAnimation::interpolated(from, to, progress); }
@@ -647,8 +651,8 @@ public:
 public slots:
 QWaitCondition* new_QWaitCondition();
 void delete_QWaitCondition(QWaitCondition* obj) { delete obj; } 
-   bool  wait(QWaitCondition* theWrappedObject, QMutex*  lockedMutex, unsigned long  time = 0xffffffffUL);
-   bool  wait(QWaitCondition* theWrappedObject, QReadWriteLock*  lockedReadWriteLock, unsigned long  time = 0xffffffffUL);
+   bool  wait(QWaitCondition* theWrappedObject, QMutex*  lockedMutex, unsigned long  time = ULONG_MAX);
+   bool  wait(QWaitCondition* theWrappedObject, QReadWriteLock*  lockedReadWriteLock, unsigned long  time = ULONG_MAX);
    void wakeAll(QWaitCondition* theWrappedObject);
    void wakeOne(QWaitCondition* theWrappedObject);
 };
@@ -672,7 +676,6 @@ virtual QString  resolveUndeclaredEntity(const QString&  name);
 
 class PythonQtPublicPromoter_QXmlStreamEntityResolver : public QXmlStreamEntityResolver
 { public:
-friend class PythonQtWrapper_QXmlStreamEntityResolver;
 inline QString  promoted_resolveEntity(const QString&  publicId, const QString&  systemId) { return QXmlStreamEntityResolver::resolveEntity(publicId, systemId); }
 inline QString  promoted_resolveUndeclaredEntity(const QString&  name) { return QXmlStreamEntityResolver::resolveUndeclaredEntity(name); }
 };

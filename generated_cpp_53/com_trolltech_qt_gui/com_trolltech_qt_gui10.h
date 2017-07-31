@@ -180,7 +180,6 @@ virtual void wheelEvent(QWheelEvent*  arg__1);
 
 class PythonQtPublicPromoter_QTableWidget : public QTableWidget
 { public:
-friend class PythonQtWrapper_QTableWidget;
 inline void promoted_dropEvent(QDropEvent*  event) { QTableWidget::dropEvent(event); }
 inline bool  promoted_dropMimeData(int  row, int  column, const QMimeData*  data, Qt::DropAction  action) { return QTableWidget::dropMimeData(row, column, data, action); }
 inline bool  promoted_event(QEvent*  e) { return QTableWidget::event(e); }
@@ -225,25 +224,25 @@ void delete_QTableWidget(QTableWidget* obj) { delete obj; }
    int  rowCount(QTableWidget* theWrappedObject) const;
    QList<QTableWidgetItem* >  selectedItems(QTableWidget* theWrappedObject) const;
    QList<QTableWidgetSelectionRange >  selectedRanges(QTableWidget* theWrappedObject) const;
-   void setCellWidget(QTableWidget* theWrappedObject, int  row, int  column, QWidget*  widget);
+   void setCellWidget(QTableWidget* theWrappedObject, int  row, int  column, PythonQtPassOwnershipToCPP<QWidget* >  widget);
    void setColumnCount(QTableWidget* theWrappedObject, int  columns);
    void setCurrentCell(QTableWidget* theWrappedObject, int  row, int  column);
    void setCurrentCell(QTableWidget* theWrappedObject, int  row, int  column, QItemSelectionModel::SelectionFlags  command);
    void setCurrentItem(QTableWidget* theWrappedObject, QTableWidgetItem*  item);
    void setCurrentItem(QTableWidget* theWrappedObject, QTableWidgetItem*  item, QItemSelectionModel::SelectionFlags  command);
-   void setHorizontalHeaderItem(QTableWidget* theWrappedObject, int  column, QTableWidgetItem*  item);
+   void setHorizontalHeaderItem(QTableWidget* theWrappedObject, int  column, PythonQtPassOwnershipToCPP<QTableWidgetItem* >  item);
    void setHorizontalHeaderLabels(QTableWidget* theWrappedObject, const QStringList&  labels);
-   void setItem(QTableWidget* theWrappedObject, int  row, int  column, QTableWidgetItem*  item);
-   void setItemPrototype(QTableWidget* theWrappedObject, const QTableWidgetItem*  item);
+   void setItem(QTableWidget* theWrappedObject, int  row, int  column, PythonQtPassOwnershipToCPP<QTableWidgetItem* >  item);
+   void setItemPrototype(QTableWidget* theWrappedObject, PythonQtPassOwnershipToCPP<const QTableWidgetItem* >  item);
    void setRangeSelected(QTableWidget* theWrappedObject, const QTableWidgetSelectionRange&  range, bool  select);
    void setRowCount(QTableWidget* theWrappedObject, int  rows);
-   void setVerticalHeaderItem(QTableWidget* theWrappedObject, int  row, QTableWidgetItem*  item);
+   void setVerticalHeaderItem(QTableWidget* theWrappedObject, int  row, PythonQtPassOwnershipToCPP<QTableWidgetItem* >  item);
    void setVerticalHeaderLabels(QTableWidget* theWrappedObject, const QStringList&  labels);
    void sortItems(QTableWidget* theWrappedObject, int  column, Qt::SortOrder  order = Qt::AscendingOrder);
    Qt::DropActions  supportedDropActions(QTableWidget* theWrappedObject) const;
-   QTableWidgetItem*  takeHorizontalHeaderItem(QTableWidget* theWrappedObject, int  column);
-   QTableWidgetItem*  takeItem(QTableWidget* theWrappedObject, int  row, int  column);
-   QTableWidgetItem*  takeVerticalHeaderItem(QTableWidget* theWrappedObject, int  row);
+   PythonQtPassOwnershipToPython<QTableWidgetItem*  > takeHorizontalHeaderItem(QTableWidget* theWrappedObject, int  column);
+   PythonQtPassOwnershipToPython<QTableWidgetItem*  > takeItem(QTableWidget* theWrappedObject, int  row, int  column);
+   PythonQtPassOwnershipToPython<QTableWidgetItem*  > takeVerticalHeaderItem(QTableWidget* theWrappedObject, int  row);
    QTableWidgetItem*  verticalHeaderItem(QTableWidget* theWrappedObject, int  row) const;
    int  visualColumn(QTableWidget* theWrappedObject, int  logicalColumn) const;
    QRect  visualItemRect(QTableWidget* theWrappedObject, const QTableWidgetItem*  item) const;
@@ -275,7 +274,6 @@ virtual void write(QDataStream&  out) const;
 
 class PythonQtPublicPromoter_QTableWidgetItem : public QTableWidgetItem
 { public:
-friend class PythonQtWrapper_QTableWidgetItem;
 inline QTableWidgetItem*  promoted_clone() const { return QTableWidgetItem::clone(); }
 inline QVariant  promoted_data(int  role) const { return QTableWidgetItem::data(role); }
 inline void promoted_setData(int  role, const QVariant&  value) { QTableWidgetItem::setData(role, value); }
@@ -530,6 +528,7 @@ enum LineHeightTypes{
   SingleHeight = QTextBlockFormat::SingleHeight,   ProportionalHeight = QTextBlockFormat::ProportionalHeight,   FixedHeight = QTextBlockFormat::FixedHeight,   MinimumHeight = QTextBlockFormat::MinimumHeight,   LineDistanceHeight = QTextBlockFormat::LineDistanceHeight};
 public slots:
 QTextBlockFormat* new_QTextBlockFormat();
+QTextBlockFormat* new_QTextBlockFormat(const QTextFormat&  fmt);
 QTextBlockFormat* new_QTextBlockFormat(const QTextBlockFormat& other) {
 PythonQtShell_QTextBlockFormat* a = new PythonQtShell_QTextBlockFormat();
 *((QTextBlockFormat*)a) = other;
@@ -587,7 +586,6 @@ virtual void timerEvent(QTimerEvent*  arg__1);
 
 class PythonQtPublicPromoter_QTextBlockGroup : public QTextBlockGroup
 { public:
-friend class PythonQtWrapper_QTextBlockGroup;
 inline void promoted_blockFormatChanged(const QTextBlock&  block) { QTextBlockGroup::blockFormatChanged(block); }
 inline void promoted_blockInserted(const QTextBlock&  block) { QTextBlockGroup::blockInserted(block); }
 inline QList<QTextBlock >  promoted_blockList() const { return QTextBlockGroup::blockList(); }
@@ -598,6 +596,7 @@ class PythonQtWrapper_QTextBlockGroup : public QObject
 { Q_OBJECT
 public:
 public slots:
+QTextBlockGroup* new_QTextBlockGroup(QTextDocument*  doc);
    void blockFormatChanged(QTextBlockGroup* theWrappedObject, const QTextBlock&  block);
    void blockInserted(QTextBlockGroup* theWrappedObject, const QTextBlock&  block);
    QList<QTextBlock >  blockList(QTextBlockGroup* theWrappedObject) const;
@@ -700,7 +699,6 @@ virtual void wheelEvent(QWheelEvent*  e);
 
 class PythonQtPublicPromoter_QTextBrowser : public QTextBrowser
 { public:
-friend class PythonQtWrapper_QTextBrowser;
 inline void promoted_backward() { QTextBrowser::backward(); }
 inline bool  promoted_event(QEvent*  e) { return QTextBrowser::event(e); }
 inline bool  promoted_focusNextPrevChild(bool  next) { return QTextBrowser::focusNextPrevChild(next); }
@@ -781,6 +779,7 @@ enum VerticalAlignment{
   AlignNormal = QTextCharFormat::AlignNormal,   AlignSuperScript = QTextCharFormat::AlignSuperScript,   AlignSubScript = QTextCharFormat::AlignSubScript,   AlignMiddle = QTextCharFormat::AlignMiddle,   AlignTop = QTextCharFormat::AlignTop,   AlignBottom = QTextCharFormat::AlignBottom,   AlignBaseline = QTextCharFormat::AlignBaseline};
 public slots:
 QTextCharFormat* new_QTextCharFormat();
+QTextCharFormat* new_QTextCharFormat(const QTextFormat&  fmt);
 QTextCharFormat* new_QTextCharFormat(const QTextCharFormat& other) {
 PythonQtShell_QTextCharFormat* a = new PythonQtShell_QTextCharFormat();
 *((QTextCharFormat*)a) = other;
@@ -968,7 +967,6 @@ virtual void timerEvent(QTimerEvent*  arg__1);
 
 class PythonQtPublicPromoter_QTextDocument : public QTextDocument
 { public:
-friend class PythonQtWrapper_QTextDocument;
 inline void promoted_clear() { QTextDocument::clear(); }
 inline QTextObject*  promoted_createObject(const QTextFormat&  f) { return QTextDocument::createObject(f); }
 inline QVariant  promoted_loadResource(int  type, const QUrl&  name) { return QTextDocument::loadResource(type, name); }
@@ -1184,7 +1182,6 @@ virtual void wheelEvent(QWheelEvent*  e);
 
 class PythonQtPublicPromoter_QTextEdit : public QTextEdit
 { public:
-friend class PythonQtWrapper_QTextEdit;
 inline bool  promoted_canInsertFromMimeData(const QMimeData*  source) const { return QTextEdit::canInsertFromMimeData(source); }
 inline void promoted_changeEvent(QEvent*  e) { QTextEdit::changeEvent(e); }
 inline void promoted_contextMenuEvent(QContextMenuEvent*  e) { QTextEdit::contextMenuEvent(e); }
@@ -1439,6 +1436,7 @@ enum Position{
   InFlow = QTextFrameFormat::InFlow,   FloatLeft = QTextFrameFormat::FloatLeft,   FloatRight = QTextFrameFormat::FloatRight};
 public slots:
 QTextFrameFormat* new_QTextFrameFormat();
+QTextFrameFormat* new_QTextFrameFormat(const QTextFormat&  fmt);
 QTextFrameFormat* new_QTextFrameFormat(const QTextFrameFormat& other) {
 PythonQtShell_QTextFrameFormat* a = new PythonQtShell_QTextFrameFormat();
 *((QTextFrameFormat*)a) = other;
@@ -1496,6 +1494,7 @@ class PythonQtWrapper_QTextImageFormat : public QObject
 public:
 public slots:
 QTextImageFormat* new_QTextImageFormat();
+QTextImageFormat* new_QTextImageFormat(const QTextFormat&  format);
 QTextImageFormat* new_QTextImageFormat(const QTextImageFormat& other) {
 PythonQtShell_QTextImageFormat* a = new PythonQtShell_QTextImageFormat();
 *((QTextImageFormat*)a) = other;
@@ -1774,6 +1773,7 @@ enum Style{
   ListDisc = QTextListFormat::ListDisc,   ListCircle = QTextListFormat::ListCircle,   ListSquare = QTextListFormat::ListSquare,   ListDecimal = QTextListFormat::ListDecimal,   ListLowerAlpha = QTextListFormat::ListLowerAlpha,   ListUpperAlpha = QTextListFormat::ListUpperAlpha,   ListLowerRoman = QTextListFormat::ListLowerRoman,   ListUpperRoman = QTextListFormat::ListUpperRoman,   ListStyleUndefined = QTextListFormat::ListStyleUndefined};
 public slots:
 QTextListFormat* new_QTextListFormat();
+QTextListFormat* new_QTextListFormat(const QTextFormat&  fmt);
 QTextListFormat* new_QTextListFormat(const QTextListFormat& other) {
 PythonQtShell_QTextListFormat* a = new PythonQtShell_QTextListFormat();
 *((QTextListFormat*)a) = other;
@@ -1812,7 +1812,6 @@ virtual void timerEvent(QTimerEvent*  arg__1);
 
 class PythonQtPublicPromoter_QTextObject : public QTextObject
 { public:
-friend class PythonQtWrapper_QTextObject;
 inline void promoted_setFormat(const QTextFormat&  format) { QTextObject::setFormat(format); }
 };
 
@@ -1820,6 +1819,7 @@ class PythonQtWrapper_QTextObject : public QObject
 { Q_OBJECT
 public:
 public slots:
+QTextObject* new_QTextObject(QTextDocument*  doc);
    QTextDocument*  document(QTextObject* theWrappedObject) const;
    QTextFormat  format(QTextObject* theWrappedObject) const;
    int  formatIndex(QTextObject* theWrappedObject) const;

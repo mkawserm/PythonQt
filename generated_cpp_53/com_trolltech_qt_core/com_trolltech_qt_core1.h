@@ -138,7 +138,6 @@ virtual void timerEvent(QTimerEvent*  arg__1);
 
 class PythonQtPublicPromoter_QFinalState : public QFinalState
 { public:
-friend class PythonQtWrapper_QFinalState;
 inline bool  promoted_event(QEvent*  e) { return QFinalState::event(e); }
 inline void promoted_onEntry(QEvent*  event) { QFinalState::onEntry(event); }
 inline void promoted_onExit(QEvent*  event) { QFinalState::onExit(event); }
@@ -180,7 +179,6 @@ virtual void timerEvent(QTimerEvent*  arg__1);
 
 class PythonQtPublicPromoter_QHistoryState : public QHistoryState
 { public:
-friend class PythonQtWrapper_QHistoryState;
 inline bool  promoted_event(QEvent*  e) { return QHistoryState::event(e); }
 inline void promoted_onEntry(QEvent*  event) { QHistoryState::onEntry(event); }
 inline void promoted_onExit(QEvent*  event) { QHistoryState::onExit(event); }
@@ -241,7 +239,6 @@ virtual qint64  writeData(const char*  data, qint64  len);
 
 class PythonQtPublicPromoter_QIODevice : public QIODevice
 { public:
-friend class PythonQtWrapper_QIODevice;
 inline bool  promoted_atEnd() const { return QIODevice::atEnd(); }
 inline qint64  promoted_bytesAvailable() const { return QIODevice::bytesAvailable(); }
 inline qint64  promoted_bytesToWrite() const { return QIODevice::bytesToWrite(); }
@@ -250,6 +247,7 @@ inline void promoted_close() { QIODevice::close(); }
 inline bool  promoted_isSequential() const { return QIODevice::isSequential(); }
 inline bool  promoted_open(QIODevice::OpenMode  mode) { return QIODevice::open(mode); }
 inline qint64  promoted_pos() const { return QIODevice::pos(); }
+inline qint64  promoted_readData(char*  data, qint64  maxlen) { return this->readData(data, maxlen); }
 inline qint64  promoted_readLineData(char*  data, qint64  maxlen) { return QIODevice::readLineData(data, maxlen); }
 inline bool  promoted_reset() { return QIODevice::reset(); }
 inline bool  promoted_seek(qint64  pos) { return QIODevice::seek(pos); }
@@ -258,6 +256,7 @@ inline void promoted_setOpenMode(QIODevice::OpenMode  openMode) { QIODevice::set
 inline qint64  promoted_size() const { return QIODevice::size(); }
 inline bool  promoted_waitForBytesWritten(int  msecs) { return QIODevice::waitForBytesWritten(msecs); }
 inline bool  promoted_waitForReadyRead(int  msecs) { return QIODevice::waitForReadyRead(msecs); }
+inline qint64  promoted_writeData(const char*  data, qint64  len) { return this->writeData(data, len); }
 };
 
 class PythonQtWrapper_QIODevice : public QObject
@@ -291,6 +290,7 @@ void delete_QIODevice(QIODevice* obj) { delete obj; }
    bool  putChar(QIODevice* theWrappedObject, char  c);
    QByteArray  read(QIODevice* theWrappedObject, qint64  maxlen);
    QByteArray  readAll(QIODevice* theWrappedObject);
+   qint64  readData(QIODevice* theWrappedObject, char*  data, qint64  maxlen);
    QByteArray  readLine(QIODevice* theWrappedObject, qint64  maxlen = 0);
    qint64  readLineData(QIODevice* theWrappedObject, char*  data, qint64  maxlen);
    bool  reset(QIODevice* theWrappedObject);
@@ -304,6 +304,7 @@ void delete_QIODevice(QIODevice* obj) { delete obj; }
    bool  waitForReadyRead(QIODevice* theWrappedObject, int  msecs);
    qint64  write(QIODevice* theWrappedObject, const QByteArray&  data);
    qint64  write(QIODevice* theWrappedObject, const char*  data);
+   qint64  writeData(QIODevice* theWrappedObject, const char*  data, qint64  len);
 };
 
 
@@ -367,7 +368,6 @@ virtual void timerEvent(QTimerEvent*  arg__1);
 
 class PythonQtPublicPromoter_QIdentityProxyModel : public QIdentityProxyModel
 { public:
-friend class PythonQtWrapper_QIdentityProxyModel;
 inline int  promoted_columnCount(const QModelIndex&  parent = QModelIndex()) const { return QIdentityProxyModel::columnCount(parent); }
 inline bool  promoted_dropMimeData(const QMimeData*  data, Qt::DropAction  action, int  row, int  column, const QModelIndex&  parent) { return QIdentityProxyModel::dropMimeData(data, action, row, column, parent); }
 inline QVariant  promoted_headerData(int  section, Qt::Orientation  orientation, int  role) const { return QIdentityProxyModel::headerData(section, orientation, role); }
@@ -1014,7 +1014,6 @@ virtual void timerEvent(QTimerEvent*  arg__1);
 
 class PythonQtPublicPromoter_QMimeData : public QMimeData
 { public:
-friend class PythonQtWrapper_QMimeData;
 inline QStringList  promoted_formats() const { return QMimeData::formats(); }
 inline bool  promoted_hasFormat(const QString&  mimetype) const { return QMimeData::hasFormat(mimetype); }
 inline QVariant  promoted_retrieveData(const QString&  mimetype, QVariant::Type  preferredType) const { return QMimeData::retrieveData(mimetype, preferredType); }
@@ -1152,7 +1151,7 @@ public slots:
 QMutex* new_QMutex(QMutex::RecursionMode  mode = QMutex::NonRecursive);
 void delete_QMutex(QMutex* obj) { delete obj; } 
    void lock(QMutex* theWrappedObject);
-   bool  tryLock(QMutex* theWrappedObject, int  timeout);
+   bool  tryLock(QMutex* theWrappedObject, int  timeout = 0);
    void unlock(QMutex* theWrappedObject);
 };
 
@@ -1178,7 +1177,6 @@ virtual void timerEvent(QTimerEvent*  arg__1);
 
 class PythonQtPublicPromoter_QObject : public QObject
 { public:
-friend class PythonQtWrapper_QObject;
 inline void promoted_childEvent(QChildEvent*  arg__1) { QObject::childEvent(arg__1); }
 inline void promoted_customEvent(QEvent*  arg__1) { QObject::customEvent(arg__1); }
 inline bool  promoted_event(QEvent*  arg__1) { return QObject::event(arg__1); }
@@ -1216,7 +1214,7 @@ void delete_QObject(QObject* obj) { delete obj; }
    int  senderSignalIndex(QObject* theWrappedObject) const;
    void setObjectName(QObject* theWrappedObject, const QString&  name);
    bool  signalsBlocked(QObject* theWrappedObject) const;
-   int  startTimer(QObject* theWrappedObject, int  interval, Qt::TimerType  timerType);
+   int  startTimer(QObject* theWrappedObject, int  interval, Qt::TimerType  timerType = Qt::CoarseTimer);
    QThread*  thread(QObject* theWrappedObject) const;
    void timerEvent(QObject* theWrappedObject, QTimerEvent*  arg__1);
 };
@@ -1247,7 +1245,6 @@ virtual void updateState(QAbstractAnimation::State  newState, QAbstractAnimation
 
 class PythonQtPublicPromoter_QParallelAnimationGroup : public QParallelAnimationGroup
 { public:
-friend class PythonQtWrapper_QParallelAnimationGroup;
 inline int  promoted_duration() const { return QParallelAnimationGroup::duration(); }
 inline bool  promoted_event(QEvent*  event) { return QParallelAnimationGroup::event(event); }
 inline void promoted_updateCurrentTime(int  currentTime) { QParallelAnimationGroup::updateCurrentTime(currentTime); }

@@ -72,11 +72,20 @@ virtual void timerEvent(QTimerEvent*  arg__1);
   PythonQtInstanceWrapper* _wrapper; 
 };
 
+class PythonQtPublicPromoter_QMediaService : public QMediaService
+{ public:
+inline void promoted_releaseControl(QMediaControl*  control) { this->releaseControl(control); }
+inline QMediaControl*  promoted_requestControl(const char*  name) { return this->requestControl(name); }
+};
+
 class PythonQtWrapper_QMediaService : public QObject
 { Q_OBJECT
 public:
 public slots:
+QMediaService* new_QMediaService(QObject*  parent);
 void delete_QMediaService(QMediaService* obj) { delete obj; } 
+   void releaseControl(QMediaService* theWrappedObject, QMediaControl*  control);
+   QMediaControl*  requestControl(QMediaService* theWrappedObject, const char*  name);
 };
 
 
@@ -181,7 +190,6 @@ virtual void timerEvent(QTimerEvent*  arg__1);
 
 class PythonQtPublicPromoter_QRadioData : public QRadioData
 { public:
-friend class PythonQtWrapper_QRadioData;
 inline QMediaObject*  promoted_mediaObject() const { return QRadioData::mediaObject(); }
 inline bool  promoted_setMediaObject(QMediaObject*  arg__1) { return QRadioData::setMediaObject(arg__1); }
 };
@@ -232,7 +240,6 @@ virtual void unbind(QObject*  arg__1);
 
 class PythonQtPublicPromoter_QRadioTuner : public QRadioTuner
 { public:
-friend class PythonQtWrapper_QRadioTuner;
 inline QMultimedia::AvailabilityStatus  promoted_availability() const { return QRadioTuner::availability(); }
 };
 
@@ -535,7 +542,6 @@ virtual void wheelEvent(QWheelEvent*  arg__1);
 
 class PythonQtPublicPromoter_QVideoWidget : public QVideoWidget
 { public:
-friend class PythonQtWrapper_QVideoWidget;
 inline bool  promoted_event(QEvent*  event) { return QVideoWidget::event(event); }
 inline void promoted_hideEvent(QHideEvent*  event) { QVideoWidget::hideEvent(event); }
 inline QMediaObject*  promoted_mediaObject() const { return QVideoWidget::mediaObject(); }

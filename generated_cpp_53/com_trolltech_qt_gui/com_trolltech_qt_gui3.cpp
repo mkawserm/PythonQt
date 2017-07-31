@@ -544,6 +544,9 @@ if (_wrapper && (((PyObject*)_wrapper)->ob_refcnt > 0)) {
     }
     if (result) { Py_DECREF(result); } 
     Py_DECREF(obj);
+    if (change0 == QGraphicsItem::ItemParentChange || change0 == QGraphicsItem::ItemSceneChange) {
+      returnValue = value1;
+    } 
     return returnValue;
   } else {
     PyErr_Clear();
@@ -950,7 +953,7 @@ QPixmap  PythonQtWrapper_QGraphicsPixmapItem::pixmap(QGraphicsPixmapItem* theWra
   return ( theWrappedObject->pixmap());
 }
 
-void PythonQtWrapper_QGraphicsPixmapItem::setExtension(QGraphicsPixmapItem* theWrappedObject, QGraphicsItem::Extension  extension, const QVariant&  variant)
+void PythonQtWrapper_QGraphicsPixmapItem::setExtension(QGraphicsPixmapItem* theWrappedObject, int  extension, const QVariant&  variant)
 {
   ( ((PythonQtPublicPromoter_QGraphicsPixmapItem*)theWrappedObject)->promoted_setExtension(extension, variant));
 }
@@ -990,7 +993,7 @@ QGraphicsPixmapItem::ShapeMode  PythonQtWrapper_QGraphicsPixmapItem::shapeMode(Q
   return ( theWrappedObject->shapeMode());
 }
 
-bool  PythonQtWrapper_QGraphicsPixmapItem::supportsExtension(QGraphicsPixmapItem* theWrappedObject, QGraphicsItem::Extension  extension) const
+bool  PythonQtWrapper_QGraphicsPixmapItem::supportsExtension(QGraphicsPixmapItem* theWrappedObject, int  extension) const
 {
   return ( ((PythonQtPublicPromoter_QGraphicsPixmapItem*)theWrappedObject)->promoted_supportsExtension(extension));
 }
@@ -1119,7 +1122,7 @@ QPolygonF  PythonQtWrapper_QGraphicsPolygonItem::polygon(QGraphicsPolygonItem* t
   return ( theWrappedObject->polygon());
 }
 
-void PythonQtWrapper_QGraphicsPolygonItem::setExtension(QGraphicsPolygonItem* theWrappedObject, QGraphicsItem::Extension  extension, const QVariant&  variant)
+void PythonQtWrapper_QGraphicsPolygonItem::setExtension(QGraphicsPolygonItem* theWrappedObject, int  extension, const QVariant&  variant)
 {
   ( ((PythonQtPublicPromoter_QGraphicsPolygonItem*)theWrappedObject)->promoted_setExtension(extension, variant));
 }
@@ -1139,7 +1142,7 @@ QPainterPath  PythonQtWrapper_QGraphicsPolygonItem::shape(QGraphicsPolygonItem* 
   return ( theWrappedObject->shape());
 }
 
-bool  PythonQtWrapper_QGraphicsPolygonItem::supportsExtension(QGraphicsPolygonItem* theWrappedObject, QGraphicsItem::Extension  extension) const
+bool  PythonQtWrapper_QGraphicsPolygonItem::supportsExtension(QGraphicsPolygonItem* theWrappedObject, int  extension) const
 {
   return ( ((PythonQtPublicPromoter_QGraphicsPolygonItem*)theWrappedObject)->promoted_supportsExtension(extension));
 }
@@ -1764,7 +1767,7 @@ if (_wrapper && (((PyObject*)_wrapper)->ob_refcnt > 0)) {
 }
   return QGraphicsProxyWidget::windowFrameSectionAt(pos0);
 }
-QGraphicsProxyWidget* PythonQtWrapper_QGraphicsProxyWidget::new_QGraphicsProxyWidget(QGraphicsItem*  parent, Qt::WindowFlags  wFlags)
+QGraphicsProxyWidget* PythonQtWrapper_QGraphicsProxyWidget::new_QGraphicsProxyWidget(PythonQtNewOwnerOfThis<QGraphicsItem* >  parent, Qt::WindowFlags  wFlags)
 { 
 return new PythonQtShell_QGraphicsProxyWidget(parent, wFlags); }
 
@@ -1908,7 +1911,7 @@ void PythonQtWrapper_QGraphicsProxyWidget::setGeometry(QGraphicsProxyWidget* the
   ( ((PythonQtPublicPromoter_QGraphicsProxyWidget*)theWrappedObject)->promoted_setGeometry(rect));
 }
 
-void PythonQtWrapper_QGraphicsProxyWidget::setWidget(QGraphicsProxyWidget* theWrappedObject, QWidget*  widget)
+void PythonQtWrapper_QGraphicsProxyWidget::setWidget(QGraphicsProxyWidget* theWrappedObject, PythonQtPassOwnershipToCPP<QWidget* >  widget)
 {
   ( theWrappedObject->setWidget(widget));
 }
@@ -2061,7 +2064,7 @@ QRectF  PythonQtWrapper_QGraphicsRectItem::rect(QGraphicsRectItem* theWrappedObj
   return ( theWrappedObject->rect());
 }
 
-void PythonQtWrapper_QGraphicsRectItem::setExtension(QGraphicsRectItem* theWrappedObject, QGraphicsItem::Extension  extension, const QVariant&  variant)
+void PythonQtWrapper_QGraphicsRectItem::setExtension(QGraphicsRectItem* theWrappedObject, int  extension, const QVariant&  variant)
 {
   ( ((PythonQtPublicPromoter_QGraphicsRectItem*)theWrappedObject)->promoted_setExtension(extension, variant));
 }
@@ -2081,7 +2084,7 @@ QPainterPath  PythonQtWrapper_QGraphicsRectItem::shape(QGraphicsRectItem* theWra
   return ( theWrappedObject->shape());
 }
 
-bool  PythonQtWrapper_QGraphicsRectItem::supportsExtension(QGraphicsRectItem* theWrappedObject, QGraphicsItem::Extension  extension) const
+bool  PythonQtWrapper_QGraphicsRectItem::supportsExtension(QGraphicsRectItem* theWrappedObject, int  extension) const
 {
   return ( ((PythonQtPublicPromoter_QGraphicsRectItem*)theWrappedObject)->promoted_supportsExtension(extension));
 }
@@ -3014,7 +3017,7 @@ QGraphicsEllipseItem*  PythonQtWrapper_QGraphicsScene::addEllipse(QGraphicsScene
   return ( theWrappedObject->addEllipse(x, y, w, h, pen, brush));
 }
 
-void PythonQtWrapper_QGraphicsScene::addItem(QGraphicsScene* theWrappedObject, QGraphicsItem*  item)
+void PythonQtWrapper_QGraphicsScene::addItem(QGraphicsScene* theWrappedObject, PythonQtPassOwnershipToCPP<QGraphicsItem* >  item)
 {
   ( theWrappedObject->addItem(item));
 }
@@ -3064,7 +3067,7 @@ QGraphicsTextItem*  PythonQtWrapper_QGraphicsScene::addText(QGraphicsScene* theW
   return ( theWrappedObject->addText(text, font));
 }
 
-QGraphicsProxyWidget*  PythonQtWrapper_QGraphicsScene::addWidget(QGraphicsScene* theWrappedObject, QWidget*  widget, Qt::WindowFlags  wFlags)
+QGraphicsProxyWidget*  PythonQtWrapper_QGraphicsScene::addWidget(QGraphicsScene* theWrappedObject, PythonQtPassOwnershipToCPP<QWidget* >  widget, Qt::WindowFlags  wFlags)
 {
   return ( theWrappedObject->addWidget(widget, wFlags));
 }
@@ -3304,7 +3307,7 @@ QPalette  PythonQtWrapper_QGraphicsScene::palette(QGraphicsScene* theWrappedObje
   return ( theWrappedObject->palette());
 }
 
-void PythonQtWrapper_QGraphicsScene::removeItem(QGraphicsScene* theWrappedObject, QGraphicsItem*  item)
+void PythonQtWrapper_QGraphicsScene::removeItem(QGraphicsScene* theWrappedObject, PythonQtPassOwnershipToPython<QGraphicsItem* >  item)
 {
   ( theWrappedObject->removeItem(item));
 }
@@ -4082,7 +4085,7 @@ void PythonQtWrapper_QGraphicsSimpleTextItem::paint(QGraphicsSimpleTextItem* the
   ( theWrappedObject->paint(painter, option, widget));
 }
 
-void PythonQtWrapper_QGraphicsSimpleTextItem::setExtension(QGraphicsSimpleTextItem* theWrappedObject, QGraphicsItem::Extension  extension, const QVariant&  variant)
+void PythonQtWrapper_QGraphicsSimpleTextItem::setExtension(QGraphicsSimpleTextItem* theWrappedObject, int  extension, const QVariant&  variant)
 {
   ( ((PythonQtPublicPromoter_QGraphicsSimpleTextItem*)theWrappedObject)->promoted_setExtension(extension, variant));
 }
@@ -4102,7 +4105,7 @@ QPainterPath  PythonQtWrapper_QGraphicsSimpleTextItem::shape(QGraphicsSimpleText
   return ( theWrappedObject->shape());
 }
 
-bool  PythonQtWrapper_QGraphicsSimpleTextItem::supportsExtension(QGraphicsSimpleTextItem* theWrappedObject, QGraphicsItem::Extension  extension) const
+bool  PythonQtWrapper_QGraphicsSimpleTextItem::supportsExtension(QGraphicsSimpleTextItem* theWrappedObject, int  extension) const
 {
   return ( ((PythonQtPublicPromoter_QGraphicsSimpleTextItem*)theWrappedObject)->promoted_supportsExtension(extension));
 }
@@ -4408,7 +4411,7 @@ void PythonQtWrapper_QGraphicsTextItem::setDocument(QGraphicsTextItem* theWrappe
   ( theWrappedObject->setDocument(document));
 }
 
-void PythonQtWrapper_QGraphicsTextItem::setExtension(QGraphicsTextItem* theWrappedObject, QGraphicsItem::Extension  extension, const QVariant&  variant)
+void PythonQtWrapper_QGraphicsTextItem::setExtension(QGraphicsTextItem* theWrappedObject, int  extension, const QVariant&  variant)
 {
   ( ((PythonQtPublicPromoter_QGraphicsTextItem*)theWrappedObject)->promoted_setExtension(extension, variant));
 }
@@ -4458,7 +4461,7 @@ QPainterPath  PythonQtWrapper_QGraphicsTextItem::shape(QGraphicsTextItem* theWra
   return ( theWrappedObject->shape());
 }
 
-bool  PythonQtWrapper_QGraphicsTextItem::supportsExtension(QGraphicsTextItem* theWrappedObject, QGraphicsItem::Extension  extension) const
+bool  PythonQtWrapper_QGraphicsTextItem::supportsExtension(QGraphicsTextItem* theWrappedObject, int  extension) const
 {
   return ( ((PythonQtPublicPromoter_QGraphicsTextItem*)theWrappedObject)->promoted_supportsExtension(extension));
 }
@@ -4643,6 +4646,11 @@ if (_wrapper && (((PyObject*)_wrapper)->ob_refcnt > 0)) {
 QGraphicsTransform* PythonQtWrapper_QGraphicsTransform::new_QGraphicsTransform(QObject*  parent)
 { 
 return new PythonQtShell_QGraphicsTransform(parent); }
+
+void PythonQtWrapper_QGraphicsTransform::applyTo(QGraphicsTransform* theWrappedObject, QMatrix4x4*  matrix) const
+{
+  ( ((PythonQtPublicPromoter_QGraphicsTransform*)theWrappedObject)->promoted_applyTo(matrix));
+}
 
 
 
@@ -7132,7 +7140,7 @@ void PythonQtWrapper_QGraphicsWidget::setGeometry(QGraphicsWidget* theWrappedObj
   ( theWrappedObject->setGeometry(x, y, w, h));
 }
 
-void PythonQtWrapper_QGraphicsWidget::setLayout(QGraphicsWidget* theWrappedObject, QGraphicsLayout*  layout)
+void PythonQtWrapper_QGraphicsWidget::setLayout(QGraphicsWidget* theWrappedObject, PythonQtPassOwnershipToCPP<QGraphicsLayout* >  layout)
 {
   ( theWrappedObject->setLayout(layout));
 }
@@ -7800,27 +7808,27 @@ void PythonQtWrapper_QGridLayout::addItem(QGridLayout* theWrappedObject, QLayout
   ( ((PythonQtPublicPromoter_QGridLayout*)theWrappedObject)->promoted_addItem(arg__1));
 }
 
-void PythonQtWrapper_QGridLayout::addItem(QGridLayout* theWrappedObject, QLayoutItem*  item, int  row, int  column, int  rowSpan, int  columnSpan, Qt::Alignment  arg__6)
+void PythonQtWrapper_QGridLayout::addItem(QGridLayout* theWrappedObject, PythonQtPassOwnershipToCPP<QLayoutItem* >  item, int  row, int  column, int  rowSpan, int  columnSpan, Qt::Alignment  arg__6)
 {
   ( theWrappedObject->addItem(item, row, column, rowSpan, columnSpan, arg__6));
 }
 
-void PythonQtWrapper_QGridLayout::addLayout(QGridLayout* theWrappedObject, QLayout*  arg__1, int  row, int  column, Qt::Alignment  arg__4)
+void PythonQtWrapper_QGridLayout::addLayout(QGridLayout* theWrappedObject, PythonQtPassOwnershipToCPP<QLayout* >  arg__1, int  row, int  column, Qt::Alignment  arg__4)
 {
   ( theWrappedObject->addLayout(arg__1, row, column, arg__4));
 }
 
-void PythonQtWrapper_QGridLayout::addLayout(QGridLayout* theWrappedObject, QLayout*  arg__1, int  row, int  column, int  rowSpan, int  columnSpan, Qt::Alignment  arg__6)
+void PythonQtWrapper_QGridLayout::addLayout(QGridLayout* theWrappedObject, PythonQtPassOwnershipToCPP<QLayout* >  arg__1, int  row, int  column, int  rowSpan, int  columnSpan, Qt::Alignment  arg__6)
 {
   ( theWrappedObject->addLayout(arg__1, row, column, rowSpan, columnSpan, arg__6));
 }
 
-void PythonQtWrapper_QGridLayout::addWidget(QGridLayout* theWrappedObject, QWidget*  arg__1, int  row, int  column, Qt::Alignment  arg__4)
+void PythonQtWrapper_QGridLayout::addWidget(QGridLayout* theWrappedObject, PythonQtPassOwnershipToCPP<QWidget* >  arg__1, int  row, int  column, Qt::Alignment  arg__4)
 {
   ( theWrappedObject->addWidget(arg__1, row, column, arg__4));
 }
 
-void PythonQtWrapper_QGridLayout::addWidget(QGridLayout* theWrappedObject, QWidget*  arg__1, int  row, int  column, int  rowSpan, int  columnSpan, Qt::Alignment  arg__6)
+void PythonQtWrapper_QGridLayout::addWidget(QGridLayout* theWrappedObject, PythonQtPassOwnershipToCPP<QWidget* >  arg__1, int  row, int  column, int  rowSpan, int  columnSpan, Qt::Alignment  arg__6)
 {
   ( theWrappedObject->addWidget(arg__1, row, column, rowSpan, columnSpan, arg__6));
 }
@@ -11891,7 +11899,7 @@ void PythonQtWrapper_QHeaderView::mouseReleaseEvent(QHeaderView* theWrappedObjec
   ( ((PythonQtPublicPromoter_QHeaderView*)theWrappedObject)->promoted_mouseReleaseEvent(e));
 }
 
-QModelIndex  PythonQtWrapper_QHeaderView::moveCursor(QHeaderView* theWrappedObject, QAbstractItemView::CursorAction  arg__1, Qt::KeyboardModifiers  arg__2)
+QModelIndex  PythonQtWrapper_QHeaderView::moveCursor(QHeaderView* theWrappedObject, int  arg__1, Qt::KeyboardModifiers  arg__2)
 {
   return ( ((PythonQtPublicPromoter_QHeaderView*)theWrappedObject)->promoted_moveCursor(arg__1, arg__2));
 }

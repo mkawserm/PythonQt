@@ -422,9 +422,11 @@ void PythonQtTestApi::initTestCase()
 void PythonQtTestApi::testProperties()
 {
   PythonQtObjectPtr main = PythonQt::self()->getMainModule();
+#ifdef PYTHONQT_SUPPORT_NAME_PROPERTY
   // check for name alias (for backward comp to Qt3)
   main.evalScript("obj.name = 'hello'");
   QVERIFY(QString("hello") == main.getVariable("obj.name").toString());
+#endif
 
   main.evalScript("obj.objectName = 'hello2'");
   QVERIFY(QString("hello2") == main.getVariable("obj.objectName").toString());
@@ -523,11 +525,29 @@ void PythonQtTestApi::testVariables()
   QVERIFY(v4==QVariant());
 }
 
+static QByteArray testSource = "PQ_test = True\n";
+static QByteArray testSourcePy3 = "b'PQ_test = True\\n'";
+
 void PythonQtTestApi::testImporter()
 {
   PythonQt::self()->setImporter(_helper);
-  PythonQt::self()->overwriteSysPath(QStringList() << "c:\\test");
+  PythonQt::self()->overwriteSysPath(QStringList() << QDir::tempPath());
   PyRun_SimpleString("import bla\n");
+  QVERIFY(PythonQt::self()->importModule("bla").getVariable("PQ_test") == QVariant::fromValue(true));
+}
+
+void PythonQtTestApi::testImporterData()
+{
+    PythonQt::self()->setImporter(_helper);
+    PythonQt::self()->overwriteSysPath(QStringList() << "/");
+    PythonQtObjectPtr loader = PythonQt::self()->lookupObject(PythonQt::self()->importModule("bla"), "__loader__");
+    QVERIFY(loader);
+    QByteArray content = loader.call("get_data", QVariantList() << "test").toByteArray();
+    QVERIFY(content == testSource || content == testSourcePy3);
+    PyObject *res = PyObject_CallMethod(loader.object(), "get_data", "s", "NOEXIST");
+    QVERIFY(!res);
+    QVERIFY(PyErr_ExceptionMatches(PyExc_IOError));
+    PyErr_Clear();
 }
 
 void PythonQtTestApi::testQtNamespace()
@@ -583,20 +603,20 @@ void PythonQtTestApi::testQColorDecorators()
 
 QByteArray PythonQtTestApiHelper::readFileAsBytes(const QString& filename)
 {
-  QByteArray b;
+  QByteArray b(testSource);
   return b;
 }
 
 QByteArray PythonQtTestApiHelper::readSourceFile(const QString& filename, bool& ok)
 {
-  QByteArray b;
+  QByteArray b(testSource);
   ok = true;
   return b;
 }
 
 bool PythonQtTestApiHelper::exists(const QString& filename)
 {
-  return true;
+  return !filename.endsWith(".pyc") && !filename.endsWith(".pyo") && !filename.contains("NOEXIST");
 }
 
 QDateTime PythonQtTestApiHelper::lastModifiedDate(const QString& filename) {

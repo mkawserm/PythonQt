@@ -65,11 +65,32 @@ virtual void updateMetaData(const QNetworkCacheMetaData&  metaData);
   PythonQtInstanceWrapper* _wrapper; 
 };
 
+class PythonQtPublicPromoter_QAbstractNetworkCache : public QAbstractNetworkCache
+{ public:
+inline qint64  promoted_cacheSize() const { return this->cacheSize(); }
+inline void promoted_clear() { this->clear(); }
+inline QIODevice*  promoted_data(const QUrl&  url) { return this->data(url); }
+inline void promoted_insert(QIODevice*  device) { this->insert(device); }
+inline QNetworkCacheMetaData  promoted_metaData(const QUrl&  url) { return this->metaData(url); }
+inline QIODevice*  promoted_prepare(const QNetworkCacheMetaData&  metaData) { return this->prepare(metaData); }
+inline bool  promoted_remove(const QUrl&  url) { return this->remove(url); }
+inline void promoted_updateMetaData(const QNetworkCacheMetaData&  metaData) { this->updateMetaData(metaData); }
+};
+
 class PythonQtWrapper_QAbstractNetworkCache : public QObject
 { Q_OBJECT
 public:
 public slots:
+QAbstractNetworkCache* new_QAbstractNetworkCache(QObject*  parent = 0);
 void delete_QAbstractNetworkCache(QAbstractNetworkCache* obj) { delete obj; } 
+   qint64  cacheSize(QAbstractNetworkCache* theWrappedObject) const;
+   void clear(QAbstractNetworkCache* theWrappedObject);
+   QIODevice*  data(QAbstractNetworkCache* theWrappedObject, const QUrl&  url);
+   void insert(QAbstractNetworkCache* theWrappedObject, QIODevice*  device);
+   QNetworkCacheMetaData  metaData(QAbstractNetworkCache* theWrappedObject, const QUrl&  url);
+   QIODevice*  prepare(QAbstractNetworkCache* theWrappedObject, const QNetworkCacheMetaData&  metaData);
+   bool  remove(QAbstractNetworkCache* theWrappedObject, const QUrl&  url);
+   void updateMetaData(QAbstractNetworkCache* theWrappedObject, const QNetworkCacheMetaData&  metaData);
 };
 
 
@@ -119,7 +140,6 @@ virtual qint64  writeData(const char*  data, qint64  len);
 
 class PythonQtPublicPromoter_QAbstractSocket : public QAbstractSocket
 { public:
-friend class PythonQtWrapper_QAbstractSocket;
 inline bool  promoted_atEnd() const { return QAbstractSocket::atEnd(); }
 inline qint64  promoted_bytesAvailable() const { return QAbstractSocket::bytesAvailable(); }
 inline qint64  promoted_bytesToWrite() const { return QAbstractSocket::bytesToWrite(); }
@@ -419,7 +439,6 @@ virtual void timerEvent(QTimerEvent*  arg__1);
 
 class PythonQtPublicPromoter_QLocalServer : public QLocalServer
 { public:
-friend class PythonQtWrapper_QLocalServer;
 inline bool  promoted_hasPendingConnections() const { return QLocalServer::hasPendingConnections(); }
 inline void promoted_incomingConnection(quintptr  socketDescriptor) { QLocalServer::incomingConnection(socketDescriptor); }
 inline QLocalSocket*  promoted_nextPendingConnection() { return QLocalServer::nextPendingConnection(); }
@@ -492,7 +511,6 @@ virtual qint64  writeData(const char*  arg__1, qint64  arg__2);
 
 class PythonQtPublicPromoter_QLocalSocket : public QLocalSocket
 { public:
-friend class PythonQtWrapper_QLocalSocket;
 inline qint64  promoted_bytesAvailable() const { return QLocalSocket::bytesAvailable(); }
 inline qint64  promoted_bytesToWrite() const { return QLocalSocket::bytesToWrite(); }
 inline bool  promoted_canReadLine() const { return QLocalSocket::canReadLine(); }
@@ -566,7 +584,6 @@ virtual void timerEvent(QTimerEvent*  arg__1);
 
 class PythonQtPublicPromoter_QNetworkAccessManager : public QNetworkAccessManager
 { public:
-friend class PythonQtWrapper_QNetworkAccessManager;
 inline QNetworkReply*  promoted_createRequest(QNetworkAccessManager::Operation  op, const QNetworkRequest&  request, QIODevice*  outgoingData = 0) { return QNetworkAccessManager::createRequest(op, request, outgoingData); }
 inline QStringList  promoted_supportedSchemesImplementation() const { return QNetworkAccessManager::supportedSchemesImplementation(); }
 };
@@ -811,7 +828,6 @@ virtual bool  validateCookie(const QNetworkCookie&  cookie, const QUrl&  url) co
 
 class PythonQtPublicPromoter_QNetworkCookieJar : public QNetworkCookieJar
 { public:
-friend class PythonQtWrapper_QNetworkCookieJar;
 inline QList<QNetworkCookie >  promoted_allCookies() const { return QNetworkCookieJar::allCookies(); }
 inline QList<QNetworkCookie >  promoted_cookiesForUrl(const QUrl&  url) const { return QNetworkCookieJar::cookiesForUrl(url); }
 inline bool  promoted_deleteCookie(const QNetworkCookie&  cookie) { return QNetworkCookieJar::deleteCookie(cookie); }
@@ -869,7 +885,6 @@ virtual void updateMetaData(const QNetworkCacheMetaData&  metaData);
 
 class PythonQtPublicPromoter_QNetworkDiskCache : public QNetworkDiskCache
 { public:
-friend class PythonQtWrapper_QNetworkDiskCache;
 inline qint64  promoted_cacheSize() const { return QNetworkDiskCache::cacheSize(); }
 inline void promoted_clear() { QNetworkDiskCache::clear(); }
 inline QIODevice*  promoted_data(const QUrl&  url) { return QNetworkDiskCache::data(url); }
@@ -997,6 +1012,11 @@ virtual QList<QNetworkProxy >  queryProxy(const QNetworkProxyQuery&  query = QNe
   PythonQtInstanceWrapper* _wrapper; 
 };
 
+class PythonQtPublicPromoter_QNetworkProxyFactory : public QNetworkProxyFactory
+{ public:
+inline QList<QNetworkProxy >  promoted_queryProxy(const QNetworkProxyQuery&  query = QNetworkProxyQuery()) { return this->queryProxy(query); }
+};
+
 class PythonQtWrapper_QNetworkProxyFactory : public QObject
 { Q_OBJECT
 public:
@@ -1004,6 +1024,7 @@ public slots:
 QNetworkProxyFactory* new_QNetworkProxyFactory();
 void delete_QNetworkProxyFactory(QNetworkProxyFactory* obj) { delete obj; } 
    QList<QNetworkProxy >  static_QNetworkProxyFactory_proxyForQuery(const QNetworkProxyQuery&  query);
+   QList<QNetworkProxy >  queryProxy(QNetworkProxyFactory* theWrappedObject, const QNetworkProxyQuery&  query = QNetworkProxyQuery());
    void static_QNetworkProxyFactory_setApplicationProxyFactory(QNetworkProxyFactory*  factory);
    void static_QNetworkProxyFactory_setUseSystemConfiguration(bool  enable);
    QList<QNetworkProxy >  static_QNetworkProxyFactory_systemProxyForQuery(const QNetworkProxyQuery&  query = QNetworkProxyQuery());
@@ -1092,7 +1113,7 @@ virtual qint64  writeData(const char*  data, qint64  len);
 
 class PythonQtPublicPromoter_QNetworkReply : public QNetworkReply
 { public:
-friend class PythonQtWrapper_QNetworkReply;
+inline void promoted_abort() { this->abort(); }
 inline void promoted_close() { QNetworkReply::close(); }
 inline void promoted_ignoreSslErrors() { QNetworkReply::ignoreSslErrors(); }
 inline void promoted_ignoreSslErrorsImplementation(const QList<QSslError >&  arg__1) { QNetworkReply::ignoreSslErrorsImplementation(arg__1); }
@@ -1115,7 +1136,9 @@ class PythonQtWrapper_QNetworkReply : public QObject
 { Q_OBJECT
 public:
 public slots:
+QNetworkReply* new_QNetworkReply(QObject*  parent = 0);
 void delete_QNetworkReply(QNetworkReply* obj) { delete obj; } 
+   void abort(QNetworkReply* theWrappedObject);
    QVariant  attribute(QNetworkReply* theWrappedObject, QNetworkRequest::Attribute  code) const;
    void close(QNetworkReply* theWrappedObject);
    QNetworkReply::NetworkError  error(QNetworkReply* theWrappedObject) const;
@@ -1213,7 +1236,6 @@ virtual void timerEvent(QTimerEvent*  arg__1);
 
 class PythonQtPublicPromoter_QNetworkSession : public QNetworkSession
 { public:
-friend class PythonQtWrapper_QNetworkSession;
 inline void promoted_connectNotify(const QMetaMethod&  signal) { QNetworkSession::connectNotify(signal); }
 inline void promoted_disconnectNotify(const QMetaMethod&  signal) { QNetworkSession::disconnectNotify(signal); }
 };

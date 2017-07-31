@@ -44,7 +44,7 @@
 
 #include "PythonQtPythonInclude.h"
 
-#include "PythonQtSystem.h"
+#include "PythonQt.h"
 
 #include <QObject>
 #include <QVariantList>
@@ -53,6 +53,7 @@
 #include <QDateTime>
 #include <QDate>
 #include <QTime>
+#include <QTimer>
 #include <QImage>
 #include <QMetaMethod>
 #include <QMetaEnum>
@@ -63,20 +64,20 @@ class PYTHONQT_EXPORT PythonQtStdDecorators : public QObject
   Q_OBJECT
 
 public Q_SLOTS:
-  bool connect(QObject* sender, const QByteArray& signal, PyObject* callable);
-  bool connect(QObject* sender, const QByteArray& signal, QObject* receiver, const QByteArray& slot,  Qt::ConnectionType type = Qt::AutoConnection);
-  bool connect(QObject* receiver, QObject* sender, const QByteArray& signal, const QByteArray& slot,  Qt::ConnectionType type = Qt::AutoConnection) { return connect(sender, signal, receiver, slot, type); }
-  bool static_QObject_connect(QObject* sender, const QByteArray& signal, PyObject* callable) { return connect(sender, signal, callable); }
-  bool static_QObject_connect(QObject* sender, const QByteArray& signal, QObject* receiver, const QByteArray& slot,  Qt::ConnectionType type = Qt::AutoConnection)  { return connect(sender, signal, receiver, slot, type); }
-  bool disconnect(QObject* sender, const QByteArray& signal, PyObject* callable = NULL);
-  bool disconnect(QObject* sender, const QByteArray& signal, QObject* receiver, const QByteArray& slot);
-  bool static_QObject_disconnect(QObject* sender, const QByteArray& signal, PyObject* callable = NULL) { return disconnect(sender, signal, callable); }
-  bool static_QObject_disconnect(QObject* sender, const QByteArray& signal, QObject* receiver, const QByteArray& slot) { return connect(sender, signal, receiver, slot); }
+  bool connect(QObject* sender, const QString& signal, PyObject* callable);
+  bool connect(QObject* sender, const QString& signal, QObject* receiver, const QString& slot,  Qt::ConnectionType type = Qt::AutoConnection);
+  bool connect(QObject* receiver, QObject* sender, const QString& signal, const QString& slot,  Qt::ConnectionType type = Qt::AutoConnection) { return connect(sender, signal, receiver, slot, type); }
+  bool static_QObject_connect(QObject* sender, const QString& signal, PyObject* callable) { return connect(sender, signal, callable); }
+  bool static_QObject_connect(QObject* sender, const QString& signal, QObject* receiver, const QString& slot,  Qt::ConnectionType type = Qt::AutoConnection)  { return connect(sender, signal, receiver, slot, type); }
+  bool disconnect(QObject* sender, const QString& signal, PyObject* callable = NULL);
+  bool disconnect(QObject* sender, const QString& signal, QObject* receiver, const QString& slot);
+  bool static_QObject_disconnect(QObject* sender, const QString& signal, PyObject* callable = NULL) { return disconnect(sender, signal, callable); }
+  bool static_QObject_disconnect(QObject* sender, const QString& signal, QObject* receiver, const QString& slot) { return connect(sender, signal, receiver, slot); }
 
   const QMetaObject* metaObject( QObject* obj );
 
   QObject* parent(QObject* o);
-  void setParent(QObject* o, QObject* parent);
+  void setParent(QObject* o, PythonQtNewOwnerOfThis<QObject*> parent);
 
   const QObjectList* children(QObject* o);
   QObject* findChild(QObject* parent, PyObject* type, const QString& name = QString());
@@ -105,15 +106,30 @@ public Q_SLOTS:
   int static_Qt_qrand() { return qrand(); }
   void static_Qt_qsrand(uint a) { qsrand(a); }
 
-  QString tr(QObject* obj, const QByteArray& text, const QByteArray& ambig = QByteArray(), int n = -1);
+  QString tr(QObject* obj, const QString& text, const QString& ambig = QString(), int n = -1);
 
-  QByteArray static_Qt_SIGNAL(const QByteArray& s) { return QByteArray("2") + s; }
-  QByteArray static_Qt_SLOT(const QByteArray& s) { return QByteArray("1") + s; }
+  QString static_Qt_SIGNAL(const QString& s) { return QString("2") + s; }
+  QString static_Qt_SLOT(const QString& s) { return QString("1") + s; }
+
+  void static_QTimer_singleShot(int msec, PyObject* callable);
 
 private:
   QObject* findChild(QObject* parent, const char* typeName, const QMetaObject* meta, const QString& name);
   int findChildren(QObject* parent, const char* typeName, const QMetaObject* meta, const QString& name, QList<QObject*>& list);
   int findChildren(QObject* parent, const char* typeName, const QMetaObject* meta, const QRegExp& regExp, QList<QObject*>& list);
+};
+
+class PythonQtSingleShotTimer : public QTimer
+{
+  Q_OBJECT
+public:
+  PythonQtSingleShotTimer(int msec, const PythonQtObjectPtr& callable);
+
+public Q_SLOTS :
+  void slotTimeout();
+
+private:
+  PythonQtObjectPtr _callable;
 };
 
 class PythonQtWrapper_QMetaObject : public QObject
@@ -154,6 +170,32 @@ public Q_SLOTS:
   QByteArray static_QMetaObject_normalizedSignature(const char *method) { return QMetaObject::normalizedSignature(method); }
   QByteArray static_QMetaObject_normalizedType(const char *type) { return QMetaObject::normalizedType(type); }
 
+};
+
+//! Some helper methods that allow testing of the ownership
+class PYTHONQT_EXPORT PythonQtDebugAPI : public QObject
+{
+  Q_OBJECT
+  public:
+    PythonQtDebugAPI(QObject* parent):QObject(parent) {};
+
+  public slots:
+    //! Returns if the C++ object is owned by PythonQt and will be deleted when the reference goes away.
+    bool isOwnedByPython(PyObject* object);
+    //! Returns if the C++ object is an instance of a Python class that derives a C++ class.
+    bool isDerivedShellInstance(PyObject* object);
+    //! Returns if the shell instance has an extra ref count from the C++ side.
+    bool hasExtraShellRefCount(PyObject* object);
+
+    //! Pass the ownership of the given object to CPP (so that it will not be deleted by Python if the reference goes away)
+    bool passOwnershipToCPP(PyObject* object);
+    //! Pass the ownership of the given object to Python (so that the C++ object will be deleted when the Python reference goes away)
+    bool passOwnershipToPython(PyObject* object);
+
+    //! Returns if the given object is a PythonQt instance wrapper (or derived class)
+    bool isPythonQtInstanceWrapper(PyObject* object);
+    //! Returns if the given object is a PythonQt class wrapper (or derived class)
+    bool isPythonQtClassWrapper(PyObject* object);
 };
 
 #endif

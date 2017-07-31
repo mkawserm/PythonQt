@@ -62,6 +62,9 @@ PythonQtClassInfo::PythonQtClassInfo() {
   _isQObject = false;
   _enumsCreated = false;
   _searchPolymorphicHandlerOnParent = true;
+  _searchRefCountCB = true;
+  _refCallback = NULL;
+  _unrefCallback = NULL;
 }
 
 PythonQtClassInfo::~PythonQtClassInfo()
@@ -131,6 +134,7 @@ bool PythonQtClassInfo::lookForPropertyAndCache(const char* memberName)
   const char* attributeName = memberName;
   // look for properties
   int i = _meta->indexOfProperty(attributeName);
+#ifdef PYTHONQT_SUPPORT_NAME_PROPERTY
   if (i==-1) {
     // try to map name to objectName
     if (qstrcmp(attributeName, "name")==0) {
@@ -139,6 +143,13 @@ bool PythonQtClassInfo::lookForPropertyAndCache(const char* memberName)
       i = _meta->indexOfProperty(attributeName);
     }
   }
+#endif
+  if (qstrcmp(attributeName, "singleShot") == 0 &&
+      className() == "QTimer") {
+    // ignore singleShot property, users need to use setSingleShot and isSingleShot instead...
+    i = -1;
+  }
+
   if (i!=-1) {
     PythonQtMemberInfo newInfo(_meta->property(i));
     _cachedMembers.insert(attributeName, newInfo);
@@ -278,7 +289,7 @@ bool PythonQtClassInfo::lookForEnumAndCache(const QMetaObject* meta, const char*
           found = true;
           break;
         } else {
-          std::cout << "enum " << e.name() << " not found on " << className().constData() << std::endl;
+          std::cerr << "enum " << e.name() << " not found on " << className().constData() << std::endl;
         }
       }
     }
@@ -430,9 +441,6 @@ void PythonQtClassInfo::listDecoratorSlotsFromDecoratorProvider(QStringList& lis
           continue;
         } else if (signature.startsWith("delete_")) {
           continue;
-        } else if (signature.startsWith("py_")) {
-          // hide everything that starts with py_
-          continue;
         }
         // XXX no checking is currently done if the slots have correct first argument or not...
         if (!metaOnly || isClassDeco) {
@@ -446,18 +454,18 @@ void PythonQtClassInfo::listDecoratorSlotsFromDecoratorProvider(QStringList& lis
   QListIterator<PythonQtSlotInfo*> it(_decoratorSlots);
   while (it.hasNext()) {
     PythonQtSlotInfo* slot = it.next();
-    if (metaOnly) {
-      if (slot->isClassDecorator()) {
-        QByteArray first = slot->slotName();
-        if (first.startsWith("static_")) {
-          int idx = first.indexOf('_');
-          idx = first.indexOf('_', idx+1);
-          first = first.mid(idx+1);
-        }
-        list << first;
-      }
-    } else {
-      list << slot->slotName();
+    QByteArray name = slot->slotName();
+    if (name.startsWith("static_")) {
+      int idx = name.indexOf('_');
+      idx = name.indexOf('_', idx+1);
+      name = name.mid(idx+1);
+    } else if (name.startsWith("new_")) {
+      continue;
+    } else if (name.startsWith("delete_")) {
+      continue;
+    }
+    if (!metaOnly || slot->isClassDecorator()) {
+      list << name;
     }
   }
 }
@@ -471,6 +479,12 @@ QStringList PythonQtClassInfo::propertyList()
     for (i = 0; i < numProperties; i++) {
       QMetaProperty p = _meta->property(i);
       l << QString(p.name());
+    }
+  }
+  QStringList members = memberList();
+  foreach(QString member, members) {
+    if (member.startsWith("py_get_")) {
+      l << member.mid(7);
     }
   }
   return l;
@@ -955,6 +969,71 @@ PythonQtSlotInfo* PythonQtClassInfo::getCopyConstructor()
   return NULL;
 }
 
+void PythonQtClassInfo::setReferenceCounting( PythonQtVoidPtrCB* refCB, PythonQtVoidPtrCB* unrefCB )
+{
+  _refCallback = refCB;
+  _unrefCallback = unrefCB;
+}
+
+PythonQtVoidPtrCB* PythonQtClassInfo::referenceCountingRefCB()
+{
+  if (_searchRefCountCB) {
+    updateRefCountingCBs();
+  }
+  return _refCallback;
+}
+
+PythonQtVoidPtrCB* PythonQtClassInfo::referenceCountingUnrefCB()
+{
+  if (_searchRefCountCB) {
+    updateRefCountingCBs();
+  }
+  return _unrefCallback;
+}
+
+void PythonQtClassInfo::updateRefCountingCBs()
+{
+  if (!_refCallback) {
+    if (!_parentClasses.isEmpty()) {
+      // we only search in single inheritance, using the first parent class
+      PythonQtClassInfo* parent = _parentClasses.at(0)._parent;
+      parent->updateRefCountingCBs();
+      // propagate to ourself
+      _refCallback = parent->_refCallback; 
+      _unrefCallback = parent->_unrefCallback; 
+    }
+  }
+  _searchRefCountCB = false;
+}
+
+PyObject* PythonQtClassInfo::getPythonTypeForProperty( const QString& name )
+{
+  PythonQtClassInfo* classInfo = getClassInfoForProperty(name);
+  if (classInfo) {
+    return classInfo->pythonQtClassWrapper();
+  } else {
+    return NULL;
+  }
+}
+
+PythonQtClassInfo* PythonQtClassInfo::getClassInfoForProperty( const QString& name )
+{
+  QByteArray typeName;
+  PythonQtMemberInfo info = member(name.toLatin1().constData());
+  if (info._type == PythonQtMemberInfo::Property) {
+    typeName = info._property.typeName();
+  } else {
+    info = member(QString("py_get_" + name).toLatin1().constData());
+    if (info._type == PythonQtMemberInfo::Slot) {
+      typeName = info._slot->parameters().at(0).name;
+    }
+  }
+  if (!typeName.isEmpty()) {
+    PythonQtClassInfo* classInfo = PythonQt::priv()->getClassInfo(typeName);
+    return classInfo;
+  }
+  return NULL;
+}
 //-------------------------------------------------------------------------
 
 PythonQtMemberInfo::PythonQtMemberInfo( PythonQtSlotInfo* info )
@@ -984,4 +1063,9 @@ PythonQtMemberInfo::PythonQtMemberInfo( const QMetaProperty& prop )
   _property = prop;
   _enumValue = NULL;
   _pythonType = NULL;
+}
+
+PythonQtDynamicClassInfo::~PythonQtDynamicClassInfo()
+{
+  delete _classInfo;
 }

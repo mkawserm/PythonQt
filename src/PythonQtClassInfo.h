@@ -41,6 +41,16 @@
 #include "PythonQt.h"
 
 class PythonQtSlotInfo;
+class PythonQtClassInfo;
+
+struct PythonQtDynamicClassInfo
+{
+  PythonQtDynamicClassInfo() { _dynamicMetaObject = NULL; _classInfo = NULL; }
+  ~PythonQtDynamicClassInfo();
+
+  const QMetaObject* _dynamicMetaObject;
+  PythonQtClassInfo* _classInfo;
+};
 
 struct PythonQtMemberInfo {
   enum Type {
@@ -211,7 +221,24 @@ public:
   //! get the python docstring (__doc__) for this class
   const QString& doc() const {return _doc;}
 
+  //! Sets reference counting callbacks for this class and all its subclasses
+  void setReferenceCounting(PythonQtVoidPtrCB* refCB, PythonQtVoidPtrCB* unrefCB);
+
+  //! Returns the ref counting CB, if there is any
+  PythonQtVoidPtrCB* referenceCountingRefCB();
+  //! Returns the unref counting CB, if there is any
+  PythonQtVoidPtrCB* referenceCountingUnrefCB();
+
+  //! Returns the Python type object for a given property.
+  //! (the returned object does not get an extra reference count)
+  PyObject* getPythonTypeForProperty(const QString& name);
+
+  //! Returns the class info for given property, if available.
+  PythonQtClassInfo* getClassInfoForProperty( const QString& name );
+
 private:
+  void updateRefCountingCBs();
+
   void createEnumWrappers();
   void createEnumWrappers(const QMetaObject* meta);
   PyObject* findEnumWrapper(const char* name);
@@ -239,6 +266,10 @@ private:
 
   PythonQtSlotInfo*                    _constructors;
   PythonQtSlotInfo*                    _destructor;
+
+  PythonQtVoidPtrCB*                   _refCallback;
+  PythonQtVoidPtrCB*                   _unrefCallback;
+
   QList<PythonQtSlotInfo*>             _decoratorSlots;
 
   QList<PythonQtObjectPtr>             _enumWrappers;
@@ -259,15 +290,15 @@ private:
   
   PythonQtShellSetInstanceWrapperCB*   _shellSetInstanceWrapperCB;
   
-  int                                  _metaTypeId;
-  int                                  _typeSlots;
+  int  _metaTypeId;
+  int  _typeSlots;
 
   bool                                 _isQObject;
   bool                                 _enumsCreated;
   bool                                 _searchPolymorphicHandlerOnParent;
+  bool                                 _searchRefCountCB;
 
   QString                              _doc;
-  
 };
 
 //---------------------------------------------------------------

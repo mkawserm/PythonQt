@@ -103,10 +103,11 @@ void ShellImplGenerator::write(QTextStream &s, const AbstractMetaClass *meta_cla
     //    s << endl;
   }
   if (meta_class->qualifiedCppName().contains("Ssl")) {
-    s << "#ifndef QT_NO_OPENSSL"  << endl;
+    s << "#ifndef QT_NO_SSL"  << endl;
   }
 
-  if (meta_class->generateShellClass() && !ctors.isEmpty()) {
+  bool generateShell = meta_class->generateShellClass() && !ctors.isEmpty();
+  if (generateShell) {
 
     s << shellClassName(meta_class) << "::~" << shellClassName(meta_class) << "() {" << endl;
     s << "  PythonQtPrivate* priv = PythonQt::priv();" << endl;
@@ -124,63 +125,73 @@ void ShellImplGenerator::write(QTextStream &s, const AbstractMetaClass *meta_cla
       Option typeOptions = Option(OriginalName | UnderscoreSpaces | SkipName);
       AbstractMetaArgumentList args = fun->arguments();
 
-      s << "if (_wrapper && (((PyObject*)_wrapper)->ob_refcnt > 0)) {" << endl;
-      s << "  static PyObject* name = PyString_FromString(\"" << fun->name() << "\");" << endl;
-      s << "  PyObject* obj = PyBaseObject_Type.tp_getattro((PyObject*)_wrapper, name);" << endl;
-      s << "  if (obj) {" << endl;
-      s << "    static const char* argumentList[] ={\"";
-      if (hasReturnValue) {
-        // write the arguments, return type first
-        writeTypeInfo(s, fun->type(), typeOptions);
-      }
-      s << "\"";
-      for (int i = 0; i < args.size(); ++i) {
-        s << " , \"";
-        writeTypeInfo(s, args.at(i)->type(), typeOptions);
+      // we can't handle return values which are references right now, do not send those to Python...
+      if (!hasReturnValue || !fun->type()->isReference()) {
+
+        s << "if (_wrapper && (((PyObject*)_wrapper)->ob_refcnt > 0)) {" << endl;
+        s << "  static PyObject* name = PyString_FromString(\"" << fun->name() << "\");" << endl;
+        s << "  PyObject* obj = PyBaseObject_Type.tp_getattro((PyObject*)_wrapper, name);" << endl;
+        s << "  if (obj) {" << endl;
+        s << "    static const char* argumentList[] ={\"";
+        if (hasReturnValue) {
+          // write the arguments, return type first
+          writeTypeInfo(s, fun->type(), typeOptions);
+        }
         s << "\"";
-      }
-      s << "};" << endl;
-      s << "    static const PythonQtMethodInfo* methodInfo = PythonQtMethodInfo::getCachedMethodInfoFromArgumentList(" << QString::number(args.size()+1) << ", argumentList);" << endl;
+        for (int i = 0; i < args.size(); ++i) {
+          s << " , \"";
+          writeTypeInfo(s, args.at(i)->type(), typeOptions);
+          s << "\"";
+        }
+        s << "};" << endl;
+        s << "    static const PythonQtMethodInfo* methodInfo = PythonQtMethodInfo::getCachedMethodInfoFromArgumentList(" << QString::number(args.size() + 1) << ", argumentList);" << endl;
 
-      if (hasReturnValue) {
-        s << "      ";
-        writeTypeInfo(s, fun->type(), typeOptions);
-        s << " returnValue;" << endl;
-        // TODO: POD init to default is missing...
-      }
-      s << "    void* args[" << QString::number(args.size()+1) << "] = {NULL";
-      for (int i = 0; i < args.size(); ++i) {
-        s << ", (void*)&" << args.at(i)->indexedName();
-      }
-      s << "};" << endl;
+        if (hasReturnValue) {
+          s << "      ";
+          writeTypeInfo(s, fun->type(), typeOptions);
+          s << " returnValue;" << endl;
+          // TODO: POD init to default is missing...
+        }
+        s << "    void* args[" << QString::number(args.size() + 1) << "] = {NULL";
+        for (int i = 0; i < args.size(); ++i) {
+          s << ", (void*)&" << args.at(i)->indexedName();
+        }
+        s << "};" << endl;
 
-      s << "    PyObject* result = PythonQtSignalTarget::call(obj, methodInfo, args, true);" << endl;
-      if (hasReturnValue) {
-        s << "    if (result) {" << endl;
-        s << "      args[0] = PythonQtConv::ConvertPythonToQt(methodInfo->parameters().at(0), result, false, NULL, &returnValue);" << endl;
-        s << "      if (args[0]!=&returnValue) {" << endl;
-        s << "        if (args[0]==NULL) {" << endl;
-        s << "          PythonQt::priv()->handleVirtualOverloadReturnError(\"" << fun->name() << "\", methodInfo, result);" << endl;
-        s << "        } else {" << endl;
-        s << "          returnValue = *((";
-        writeTypeInfo(s, fun->type(), typeOptions);
-        s << "*)args[0]);" << endl;
-        s << "        }" << endl;
-        s << "      }" << endl;
-        s << "    }" << endl;
+        s << "    PyObject* result = PythonQtSignalTarget::call(obj, methodInfo, args, true);" << endl;
+        if (hasReturnValue) {
+          s << "    if (result) {" << endl;
+          s << "      args[0] = PythonQtConv::ConvertPythonToQt(methodInfo->parameters().at(0), result, false, NULL, &returnValue);" << endl;
+          s << "      if (args[0]!=&returnValue) {" << endl;
+          s << "        if (args[0]==NULL) {" << endl;
+          s << "          PythonQt::priv()->handleVirtualOverloadReturnError(\"" << fun->name() << "\", methodInfo, result);" << endl;
+          s << "        } else {" << endl;
+          s << "          returnValue = *((";
+          writeTypeInfo(s, fun->type(), typeOptions);
+          s << "*)args[0]);" << endl;
+          s << "        }" << endl;
+          s << "      }" << endl;
+          s << "    }" << endl;
+        }
+        s << "    if (result) { Py_DECREF(result); } " << endl;
+        s << "    Py_DECREF(obj);" << endl;
+        // ugly hack, we don't support QGraphicsScene* nor QGraphicsItem* QVariants in PythonQt...
+        if (fun->name() == "itemChange" && fun->type() && fun->type()->isVariant()) {
+            s << "    if (change0 == QGraphicsItem::ItemParentChange || change0 == QGraphicsItem::ItemSceneChange) {\n";
+            s << "      returnValue = value1;\n";
+            s << "    } \n";
+        }
+        if (hasReturnValue) {
+          s << "    return returnValue;" << endl;
+        }
+        else {
+          s << "    return;" << endl;
+        }
+        s << "  } else {" << endl;
+        s << "    PyErr_Clear();" << endl;
+        s << "  }" << endl;
+        s << "}" << endl;
       }
-      s << "    if (result) { Py_DECREF(result); } " << endl;
-      s << "    Py_DECREF(obj);" << endl;
-      if (hasReturnValue) {
-        s << "    return returnValue;" << endl;
-      } else {
-        s << "    return;" << endl;
-      }
-      s << "  } else {" << endl;
-      s << "    PyErr_Clear();" << endl;
-      s << "  }" << endl;
-      s << "}" << endl;
-
       s << "  ";
       if (fun->isAbstract()) {
         if (fun->type()) {
@@ -200,8 +211,9 @@ void ShellImplGenerator::write(QTextStream &s, const AbstractMetaClass *meta_cla
         s << meta_class->qualifiedCppName() << "::";
         s << fun->originalName() << "(";
         for (int i = 0; i < args.size(); ++i) {
-          if (i > 0)
+          if (i > 0) {
             s << ", ";
+          }
           s << args.at(i)->indexedName();
         }
         s << ");";
@@ -214,11 +226,11 @@ void ShellImplGenerator::write(QTextStream &s, const AbstractMetaClass *meta_cla
 
     // write constructors
     foreach (const AbstractMetaFunction *ctor, ctors) {
-      if (!ctor->isPublic() || ctor->isAbstract()) { continue; }
+      if (ctor->isAbstract() || (!meta_class->generateShellClass() && !ctor->isPublic())) { continue; }
 
       s << meta_class->qualifiedCppName() << "* ";
       s << "PythonQtWrapper_" << meta_class->name() << "::";
-      writeFunctionSignature(s, ctor, 0, "new_", Option(OriginalName | ShowStatic));
+      writeFunctionSignature(s, ctor, 0, "new_", Option(AddOwnershipTemplates | OriginalName | ShowStatic));
       s << endl;
       s << "{ " << endl;
       s << "return new " << (meta_class->generateShellClass()?shellClassName(meta_class):meta_class->qualifiedCppName()) << "(";
@@ -232,17 +244,35 @@ void ShellImplGenerator::write(QTextStream &s, const AbstractMetaClass *meta_cla
     }
   }
 
+  if (generateShell && meta_class->isQObject()) {
+    s << "const QMetaObject* " << shellClassName(meta_class) << "::metaObject() const {" << endl;
+    s << "  if (QObject::d_ptr->metaObject) {" << endl;
+    s << "    return QObject::d_ptr->dynamicMetaObject();" << endl;
+    s << "  } else if (_wrapper) {" << endl;
+    s << "    return PythonQt::priv()->getDynamicMetaObject(_wrapper, &" << meta_class->qualifiedCppName() << "::staticMetaObject);" << endl;
+    s << "  } else {" << endl;
+    s << "    return &" << meta_class->qualifiedCppName() << "::staticMetaObject;" << endl;
+    s << "  }" << endl;
+    s << "}" << endl;
+
+    s << "int " << shellClassName(meta_class) << "::qt_metacall(QMetaObject::Call call, int id, void** args) {" << endl;
+    s << "  int result = " << meta_class->qualifiedCppName() << "::qt_metacall(call, id, args);" << endl;
+    s << "  return result >= 0 ? PythonQt::priv()->handleMetaCall(this, _wrapper, call, id, args) : result;" << endl;
+    s << "}" << endl;
+
+  }
+
   QString wrappedObject = " (*theWrappedObject)";
 
   // write member functions
   for (int i = 0; i < functions.size(); ++i) {
     AbstractMetaFunction *fun = functions.at(i);
-    bool needsWrapping = (!fun->isSlot() || fun->isVirtual());
+    bool needsWrapping = functionNeedsNormalWrapperSlot(fun, meta_class);
     if (!needsWrapping) {
       continue;
     }
     writeFunctionSignature(s, fun, meta_class, QString(),
-      Option(ConvertReferenceToPtr | FirstArgIsWrappedObject | OriginalName | ShowStatic | UnderscoreSpaces),
+      Option(AddOwnershipTemplates | ConvertReferenceToPtr | FirstArgIsWrappedObject | OriginalName | ShowStatic | UnderscoreSpaces | ProtectedEnumAsInts),
       "PythonQtWrapper_");
     s << endl << "{" << endl;
     s << "  ";
@@ -277,9 +307,14 @@ void ShellImplGenerator::write(QTextStream &s, const AbstractMetaClass *meta_cla
         s << wrappedObject << op << " " << args.at(0)->argumentName();
       } else {
         if (fun->isStatic()) {
-          s << meta_class->qualifiedCppName() << "::";
+          if (fun->wasProtected()) {
+            s << promoterClassName(meta_class) << "::promoted_";
+          } else {
+            s << meta_class->qualifiedCppName() << "::";
+          }
         } else {
-          if (fun->wasProtected() || fun->isVirtual()) {
+          if (fun->wasProtected()) {
+            //|| (fun->isVirtual() && meta_class->typeEntry()->shouldCreatePromoter())) {
             s << " (("  << promoterClassName(meta_class) << "*)theWrappedObject)->promoted_";
           } else {
             s << " theWrappedObject->";

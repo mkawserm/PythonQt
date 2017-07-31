@@ -329,7 +329,7 @@ QStringList AbstractMetaFunction::introspectionCompatibleSignatures(const QStrin
 {
     AbstractMetaArgumentList arguments = this->arguments();
     if (arguments.size() == resolvedArguments.size()) {
-        return (QStringList() << QMetaObject::normalizedSignature((name() + "(" + resolvedArguments.join(",") + ")").toUtf8().constData()));
+        return (QStringList() << TypeSystem::normalizedSignature((name() + "(" + resolvedArguments.join(",") + ")").toUtf8().constData()));
     } else {
         QStringList returned;
 
@@ -656,7 +656,7 @@ QString AbstractMetaFunction::minimalSignature() const
     if (isConstant())
         minimalSignature += "const";
 
-    minimalSignature = QMetaObject::normalizedSignature(minimalSignature.toLocal8Bit().constData());
+    minimalSignature = TypeSystem::normalizedSignature(minimalSignature.toLocal8Bit().constData());
     m_cached_minimal_signature = minimalSignature;
 
     return minimalSignature;
@@ -696,18 +696,6 @@ QString AbstractMetaFunction::targetLangSignature(bool minimal) const
 
     // Attributes...
     if (!minimal) {
-#if 0 // jambi
-        if (isPublic()) s += "public ";
-        else if (isProtected()) s += "protected ";
-        else if (isPrivate()) s += "private ";
-
-//     if (isNative()) s += "native ";
-//     else
-        if (isFinalInTargetLang()) s += "final ";
-        else if (isAbstract()) s += "abstract ";
-
-        if (isStatic()) s += "static ";
-#endif
         // Return type
         if (type())
             s += type()->name() + " ";
@@ -850,14 +838,24 @@ AbstractMetaFunctionList AbstractMetaClass::queryFunctionsByName(const QString &
     return returned;
 }
 
-bool AbstractMetaClass::hasDefaultIsNull() const 
+QString AbstractMetaClass::getDefaultNonZeroFunction() const
 {
-  foreach(const AbstractMetaFunction* fun, queryFunctionsByName("isNull")) {
-    if (fun->actualMinimumArgumentCount()==0) {
-      return true;
+  foreach(const AbstractMetaFunction* fun, queryFunctionsByName("isEmpty")) {
+    if (fun->actualMinimumArgumentCount()==0 && fun->isPublic()) {
+      return "isEmpty";
     }
   }
-  return false;
+  foreach(const AbstractMetaFunction* fun, queryFunctionsByName("isValid")) {
+    if (fun->actualMinimumArgumentCount() == 0 && fun->isPublic()) {
+      return "isValid";
+    }
+  }
+  foreach(const AbstractMetaFunction* fun, queryFunctionsByName("isNull")) {
+    if (fun->actualMinimumArgumentCount() == 0 && fun->isPublic()) {
+      return "isNull";
+    }
+  }
+  return QString();
 }
 
 /*******************************************************************************
@@ -1091,7 +1089,8 @@ void AbstractMetaClass::addFunction(AbstractMetaFunction *function)
 
     if (!function->isDestructor()) {
         m_functions << function;
-        qSort(m_functions.begin(), m_functions.end(), function_sorter);
+        // seems like this is not needed and takes a lot of performance
+        //qSort(m_functions.begin(), m_functions.end(), function_sorter);
     }
 
 
@@ -1142,11 +1141,11 @@ bool AbstractMetaClass::hasProtectedFunctions() const {
 
 bool AbstractMetaClass::generateShellClass() const
 {
-    return m_force_shell_class ||
+    return typeEntry()->shouldCreateShell() && ( m_force_shell_class ||
         (!isFinal()
          && (hasVirtualFunctions()
              || hasProtectedFunctions()
-             || hasFieldAccessors()));
+             || hasFieldAccessors())));
 }
 
 QPropertySpec *AbstractMetaClass::propertySpecForRead(const QString &name) const
@@ -1496,10 +1495,10 @@ void AbstractMetaClass::addInterface(AbstractMetaClass *interface)
             *cpy += AbstractMetaAttributes::InterfaceFunction;
 
             // Copy the modifications in interface into the implementing classes.
-            FunctionModificationList mods = function->modifications(interface);
-            foreach  (const FunctionModification &mod, mods) {
-                m_type_entry->addFunctionModification(mod);
-            }
+            //FunctionModificationList mods = function->modifications(interface);
+            //foreach  (const FunctionModification &mod, mods) {
+            //    m_type_entry->addFunctionModification(mod);
+            //}
 
             // It should be mostly safe to assume that when we implement an interface
             // we don't "pass on" pure virtual functions to our sublcasses...
@@ -1766,6 +1765,13 @@ void AbstractMetaClass::fixFunctions()
 
                     }
 
+                    /* I did not see a good reason for erasing the default arguments,
+                       maybe this was a java related problem?
+                       I uncommented this code, because it causes that the default arguments
+                       of QBoxLayout::addWidget(QWidget, stretch, alignment) are removed because of
+                       QLayout::addWidget(QWidget)
+                       */
+                    /*
                     if (cmp & AbstractMetaFunction::EqualDefaultValueOverload) {
                         AbstractMetaArgumentList arguments;
                         if (f->arguments().size() < sf->arguments().size())
@@ -1775,7 +1781,7 @@ void AbstractMetaClass::fixFunctions()
 
                         for (int i=0; i<arguments.size(); ++i)
                             arguments[i]->setDefaultValueExpression(QString());
-                    }
+                    }*/
 
 
                     // Otherwise we have function shadowing and we can
@@ -1840,7 +1846,10 @@ void AbstractMetaClass::fixFunctions()
         (*this) -= AbstractMetaAttributes::Final;
     }
 
-    foreach (AbstractMetaFunction *f1, funcs) {
+    // we don't care about FinalOverload for PythonQt, so we
+    // can remove this compare orgy...
+    
+    /*foreach (AbstractMetaFunction *f1, funcs) {
         foreach (AbstractMetaFunction *f2, funcs) {
             if (f1 != f2) {
                 uint cmp = f1->compareTo(f2);
@@ -1861,7 +1870,7 @@ void AbstractMetaClass::fixFunctions()
                 }
             }
         }
-    }
+    }*/
 
     setFunctions(funcs);
 }

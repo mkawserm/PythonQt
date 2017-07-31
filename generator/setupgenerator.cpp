@@ -44,6 +44,7 @@
 #include "reporthandler.h"
 #include "fileout.h"
 
+
 void SetupGenerator::addClass(const QString& package, const AbstractMetaClass *cls)
 {
   packHash[package].append(cls);
@@ -104,9 +105,23 @@ static QStringList getOperatorCodes(const AbstractMetaClass* cls) {
       r.insert("PythonQt::Type_InplaceXor");
     }
   }
-  if (cls->hasDefaultIsNull()) {
+  if (!cls->getDefaultNonZeroFunction().isEmpty()) {
     r.insert("PythonQt::Type_NonZero");
   }
+
+  {
+    CodeSnipList code_snips = cls->typeEntry()->codeSnips();
+    foreach(const CodeSnip &cs, code_snips) {
+      if (cs.language == TypeSystem::PyWrapperOperators) {
+        QStringList values = cs.code().split(" ", QString::SkipEmptyParts);
+        foreach(QString value, values) {
+          r.insert(value);
+        }
+      }
+    }
+  }
+
+
   QStringList result = r.toList();
   qSort(result);
   return result;
@@ -266,6 +281,7 @@ void SetupGenerator::generate()
       }
 
       QSet<QString> listRegistration;
+      QSet<QString> snips;
       foreach(const AbstractMetaClass *cls, list) {
         Q_FOREACH(const AbstractMetaFunction* func, cls->functions()) {
           if (func->type() && func->type()->isContainer()) {
@@ -277,7 +293,23 @@ void SetupGenerator::generate()
             }
           }
         }
+        {
+          while (cls) {
+            CodeSnipList code_snips = cls->typeEntry()->codeSnips();
+            foreach(const CodeSnip &cs, code_snips) {
+              if (cs.language == TypeSystem::PyInitSource) {
+                snips.insert(cs.code());
+              }
+            }
+            cls = cls->baseClass();
+          }
+        }
       }
+
+      foreach(QString snip, snips) {
+        s << snip;
+      }
+      s << endl;
 
       // declare individual class creation functions
       s << "void PythonQt_init_" << shortPackName << "(PyObject* module) {" << endl;
@@ -288,7 +320,7 @@ void SetupGenerator::generate()
 
       foreach (const AbstractMetaClass *cls, list) {
         if (cls->qualifiedCppName().contains("Ssl")) {
-          s << "#ifndef QT_NO_OPENSSL"  << endl;
+          s << "#ifndef QT_NO_SSL"  << endl;
         }
         AbstractMetaFunctionList ctors = cls->queryFunctions(AbstractMetaClass::Constructors
           | AbstractMetaClass::WasVisible
@@ -296,7 +328,21 @@ void SetupGenerator::generate()
 
         QString shellCreator;
         if (cls->generateShellClass() && !ctors.isEmpty()) {
-          shellCreator = ", PythonQtSetInstanceWrapperOnShell<" + ShellGenerator::shellClassName(cls) + ">";
+          QString setInstanceFunc = "PythonQtSetInstanceWrapperOnShell";
+          {
+            const AbstractMetaClass* theclass = cls;
+            while (theclass) {
+              CodeSnipList code_snips = theclass->typeEntry()->codeSnips();
+              foreach(const CodeSnip &cs, code_snips) {
+                if (cs.language == TypeSystem::PySetWrapperFunc) {
+                  setInstanceFunc = cs.code();
+                  break;
+                }
+              }
+              theclass = theclass->baseClass();
+            }
+          }
+          shellCreator = ", " + setInstanceFunc + "<" + ShellGenerator::shellClassName(cls) + ">";
         } else {
           shellCreator = ", NULL";
         }
@@ -330,7 +376,7 @@ void SetupGenerator::generate()
       list.sort();
       Q_FOREACH(QString name, list) {
         if (name.contains("Ssl")) {
-          s << "#ifndef QT_NO_OPENSSL" << endl;
+          s << "#ifndef QT_NO_SSL" << endl;
         }
         s << name << endl;
         if (name.contains("Ssl")) {
